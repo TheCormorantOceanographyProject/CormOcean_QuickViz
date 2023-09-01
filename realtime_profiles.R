@@ -162,15 +162,33 @@ Birds_dpth_ids$date<-date(Birds_dpth_ids$datetime)
 
 # GPS clean ---------------------------------------------------------------
 
-gps<-Birds%>%filter(!is.na(lat))%>%filter(datatype=="GPSD")
+gps<-Birds%>%
+  filter(!is.na(lat))%>% #removes NA
+  filter(lat!=0 & lon!=0)%>% #removes (0,0)
+  filter(datatype=="GPSD") #finds all post dive GPS locations
+gps$tdiff_sec <-round(difftime(gps$datetime, lag(gps$datetime, 1),units = "secs"),2)
+
+names(gps)
 
 #identify and sequentially number GPS Dive bursts (typically 2 GPS fixes)
+# Find consecutively recorded dive data
+gps_burstID<- gps %>% group_by(device_id)%>%
+  mutate(gap_time=tdiff_sec>2, # find times when there is a gap > 60 minutes
+         gap_time=ifelse(is.na(gap_time),0,gap_time), #fill NAs
+         gpsDiveburstID=(cumsum(gap_time)))#, # gap_time is T/F so cumsum is adding 1
+
+#sequentially numbers each row in each burst
+gps_burstID<-gps_burstID%>%group_by(device_id,gpsDiveburstID)%>%
+  mutate(gpsNum=row_number())
+#for each T aka giving a index number to each gap
+
+
 
 # force difftime in secs & finds surface drifts (diff of <2 for more than 5 seconds)
 gps$PointDur1 <- round(abs(as.numeric(difftime(time1 =  gps$datetime,
                                              time2 = lead(gps$datetime),
                                              units = "secs"))),1)
- 
+
 gps$PointDur2 <- round(abs(as.numeric(difftime(time1 =  gps$datetime,
                                               time2 = lag(gps$datetime),
                                               units = "secs"))),1)
@@ -187,3 +205,5 @@ CTD<-read.csv("/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/Analysi
 
 names(Tonly)
 names(CTD)
+
+
