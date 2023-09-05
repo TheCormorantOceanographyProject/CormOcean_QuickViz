@@ -150,7 +150,7 @@ Birds_dpth_ids<-MakeDive(Birds_dpth,idCol=id_num, #column index with unique ID
                      depthCol=dp_num, #column index with depth
                      tdiffCol=td_num, #column index with time difference in seconds
                      DepthCutOff=1, #depth that dives happen below (meters)
-                     DiveDepthYes=1, #dives need to reach 1 meters to be considered a dive event
+                     DiveDepthYes=2, #dives need to reach 1 meters to be considered a dive event
                      TimeDiffAllowed_sec=2, #consecutive points need to have a time difference <2 to be in the same event
                      NumLocCut=3) #dives need to contain three points to be considered a dive, could change this to a duration
 
@@ -173,26 +173,21 @@ names(gps)
 #identify and sequentially number GPS Dive bursts (typically 2 GPS fixes)
 # Find consecutively recorded dive data
 gps_burstID<- gps %>% group_by(device_id)%>%
-  mutate(gap_time=tdiff_sec>2, # find times when there is a gap > 60 minutes
+  mutate(gap_time=tdiff_sec>2, # find times when there is a gap > 2sec
          gap_time=ifelse(is.na(gap_time),0,gap_time), #fill NAs
          gpsDiveburstID=(cumsum(gap_time)))#, # gap_time is T/F so cumsum is adding 1
 
 #sequentially numbers each row in each burst
 gps_burstID<-gps_burstID%>%group_by(device_id,gpsDiveburstID)%>%
   mutate(gpsNum=row_number())
-#for each T aka giving a index number to each gap
 
 
 
-# force difftime in secs & finds surface drifts (diff of <2 for more than 5 seconds)
-gps$PointDur1 <- round(abs(as.numeric(difftime(time1 =  gps$datetime,
-                                             time2 = lead(gps$datetime),
-                                             units = "secs"))),1)
-
-gps$PointDur2 <- round(abs(as.numeric(difftime(time1 =  gps$datetime,
-                                              time2 = lag(gps$datetime),
-                                              units = "secs"))),1)
-
+# find max depth to surface segments --------------------------------------
+names(Birds_dpth_ids)
+S<-Birds_dpth_ids%>%group_by(ID, divedatYN)%>%filter(!is.na(divedatYN))%>%
+  summarise(max=max(depth),max_oid=which.max(depth),startT=min(datetime),endT=max(datetime))%>%
+  mutate(duration=endT-startT)
 
 
 # conversion to ATN csv format (platformQC)--------------------------------------------
