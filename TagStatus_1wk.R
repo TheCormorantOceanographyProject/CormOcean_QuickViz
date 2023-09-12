@@ -291,6 +291,9 @@ for (i in 1:length(IDs)){
 
 
 # google map plots --------------------------------------------------------
+# Once Benthos is ready rewrite for server and move libraries to the top of code. 
+# This should just fail during runs
+
 library(ggmap)
 library(osmdata)
 library(argosfilter)
