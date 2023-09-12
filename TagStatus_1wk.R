@@ -41,7 +41,6 @@ deploy_matrix$DeploymentEndDatetime_UTC<-mdy_hm(deploy_matrix$DeploymentEndDatet
 deploy_matrix<-deploy_matrix%>%select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC)%>%
   filter(is.na(TagSerialNumber)==FALSE)
 
-
 # Find file names with data -------------------------------------------
 my_files <- fileSnapshot(path=datadir)
 Files1<-rownames(my_files$info[1])[which(my_files$info[1] < 309)] #selects files with >309 bytes (1 header row)
@@ -151,7 +150,7 @@ Birds_dpth<-MakeDive(Birds_dpth,idCol=id_num, #column index with unique ID
                    depthCol=dp_num, #column index with depth
                    tdiffCol=td_num, #column index with time difference in seconds
                    DepthCutOff=1, #depth that dives happen below (meters)
-                   DiveDepthYes=3, #dives need to reach 3 meters to be considered a dive event
+                   DiveDepthYes=2, #dives need to reach 3 meters to be considered a dive event
                    TimeDiffAllowed_sec=2, #consecutive points need to have a time difference <2 to be in the same event
                    NumLocCut=3) #dives need to contain three points to be considered a dive, could change this to a duration
   
@@ -161,7 +160,8 @@ dsum<-Birds_dpth%>%group_by(ID,date)%>%
   summarise(n=n_distinct(divedatYN))
 
 dsum_weekly<-dsum%>%group_by(ID)%>%
-  summarize(udives_day=floor(mean(n)))
+  summarize(udives_day=floor(mean(n)),
+            totalDives=sum(n))
 
 # quick summary of the bird data
 sumDat<-Birds%>%group_by(Project_ID,tagID,device_id)%>%
@@ -288,3 +288,89 @@ for (i in 1:length(IDs)){
   ggsave(temp_plot,filename = paste0(savedir,"/1wk_map_",IDs[i],".png"),height=4,width=8,device = "png")
 }
 
+
+
+# google map plots --------------------------------------------------------
+library(ggmap)
+library(osmdata)
+library(argosfilter)
+library(ggpubr)
+
+info<-read.csv("/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/data/Field Data/Project Titles and IDs.csv")
+
+unique(Birds_gps$DeployEndShort)
+Birds_gps<-Birds%>%filter(lat!=0)%>%
+  filter(is.na(lat)==FALSE)%>%
+  filter(lon!=0)%>%
+  filter(DeployEndShort!="stationary")
+
+Birds_gps$device_id<-as.factor(Birds_gps$device_id)
+
+birdNum<-length(unique(Birds_gps$device_id))
+
+IDs<-unique(Birds_gps$Project_ID)
+temp_plot<-list()
+diveSUM<-NA
+
+for (i in 1:length(IDs)){
+  birdies<-Birds_gps[Birds_gps$Project_ID==IDs[i],]
+  birds<-droplevels(unique(birdies$device_id))
+  sum.dat<-SUMDAT%>%filter(Project_ID==IDs[i])
+  diveSUM[i]<-sum(sum.dat$totalDives, na.rm=TRUE)
+  Pinfo<-info%>%filter(Project_ID==IDs[i])
+  tit<-paste0(Pinfo$Country,"-",Pinfo$Species_Short, ": ",diveSUM[i], " dives")
+  
+  
+  
+  locs<-birdies
+  # locs<-NULL
+  # for (j in 1:length(birds)){
+  #   Locs1<-birdies%>%filter(device_id==birds[j])
+  #   try(mfilter<-vmask(lat=Locs1$lat, lon=Locs1$lon, dtime=Locs1$datetime, vmax=25), silent=FALSE)
+  #   #if mfilter isn't made this makes one that selects all points
+  #   if (exists("mfilter")==FALSE) mfilter<-rep("not", nrow(Locs1))
+  #   Locs1$mfilter<-mfilter
+  #   Locs<-Locs1%>%filter(mfilter!="removed")
+  #   locs<-rbind(locs,Locs)
+  # }
+  # 
+  y_min<-min(locs$lat)-.4
+  y_max<-max(locs$lat)+.4
+  
+  x_min<-min(locs$lon)-.5
+  x_max<-max(locs$lon)+.5
+  
+  (map <- get_map(c(left = x_min, bottom = y_min, right = x_max, top = y_max),source="stamen"))
+  
+  temp_plot[[i]]<-
+    #geom_polygon(data=w2hr,aes(long,lat,group=group),fill="grey70",color="grey60",linewidth=0.1)+
+    ggmap(map)+
+    geom_path(data=locs,aes(x=lon,y=lat, group=device_id))+
+    geom_point(data=locs,aes(x=lon,y=lat, color=device_id), size=.5)+
+    xlab("Longitude")+
+    ylab("Latitude")+
+    coord_fixed(ratio=1.7,xlim = c(x_min,x_max),ylim=c(y_min,y_max))+
+    labs(title=tit)+
+    theme_bw()+
+    theme(legend.title=element_blank(),
+          legend.text = element_blank())+
+    guides(colour = guide_legend(override.aes = list(size=3)))
+  ggsave(temp_plot[[i]],filename = paste0(savedir,"/street_1wk_map_",IDs[i],".png"),height=4,width=8,device = "png")
+}
+
+
+IDS_label<-paste0(IDs, ": ",diveSUM, " dives")
+
+length(temp_plot[[i]])
+A<-date(min(Birds_gps$datetime))
+B<-date(max(Birds_gps$datetime))
+
+figure <- ggarrange(temp_plot[[1]],temp_plot[[2]],temp_plot[[3]],temp_plot[[4]],
+                    temp_plot[[5]],temp_plot[[6]],temp_plot[[7]],temp_plot[[8]],
+                    temp_plot[[9]],temp_plot[[10]],temp_plot[[11]],
+                    ncol = 4, nrow = 3)
+
+figure<-annotate_figure(figure, top = text_grob(paste("Cormorant Oceanography Project Data:", A,"-", B,"with", birdNum, "birds &",sum(diveSUM),"total dives"),
+                                      color = "black", face = "bold", size = 14))
+figure
+ggsave(figure,filename = paste0(savedir,"/CormOcean_1wk_",A,"_ALL.png"),height=12,width=16,device = "png",bg = "white")

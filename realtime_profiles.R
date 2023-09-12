@@ -171,7 +171,7 @@ gps$tdiff_sec <-round(difftime(gps$datetime, lag(gps$datetime, 1),units = "secs"
 names(gps)
 
 #identify and sequentially number GPS Dive bursts (typically 2 GPS fixes)
-# Find consecutively recorded dive data
+# Find consecutively recorded GPS data
 gps_burstID<- gps %>% group_by(device_id)%>%
   mutate(gap_time=tdiff_sec>2, # find times when there is a gap > 2sec
          gap_time=ifelse(is.na(gap_time),0,gap_time), #fill NAs
@@ -201,4 +201,5 @@ CTD<-read.csv("/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/Analysi
 names(Tonly)
 names(CTD)
 
+head(CTD)
 
