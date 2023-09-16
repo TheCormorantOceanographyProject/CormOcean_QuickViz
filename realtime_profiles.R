@@ -7,8 +7,12 @@ library(R.utils)
 library(tidyr)
 library(zoo)#dive phase
 library(pracma)#matlab style gradient function
+library(argosfilter)#forward-backward speed filter for GPS data
 
 #sandbox for real-time CTD profile processing
+#Its best if data can be converted to BUFR and submitted to the GTS within 24 hrs, 
+#but 10 days is generally the cut-off for when data are considered 'too old'. 
+ 
 
 #DATA: FTP data from Ornitela
 
@@ -21,21 +25,22 @@ if(Sys.info()[7]=="rachaelorben") {
 
 op=options(digits.secs=3) # option for decimals in date time variables
 
-# Find file names with data within last 24-hr-------------------------------------------
+# Find file names with data within last 10 days-------------------------------------------
 my_files <- fileSnapshot(path=datadir)
 Files1<-rownames(my_files$info[1])[which(my_files$info[1] < 309)] #selects files with >309 bytes (1 header row)
 
 now<-Sys.time()
 tz_str<-Sys.timezone() #adds in system timezone
-hr6<-now-(86400) #24hr in seconds
+CUT<-86400*10
+tcut<-now-CUT #24hr in seconds*10
 dates<-my_files$info[5]
 dates$datetime<-ymd_hms(dates$ctime,tz = tz_str)
 
-IDx<-which(dates$datetime>hr6)
+IDx<-which(dates$datetime>tcut)
 Files2<-rownames(my_files$info[5])[IDx]#removes all files not written in last 6hr
 Files<-Files2[Files2 %in% Files1 == FALSE] #I think this should remove empty files written within last 6hr
 
-# Cycles through data files to find data written in last 6 hr------------
+# Cycles through data files to find data written in last 10 days -------------
 sel_files<-NULL
 for (i in 1:length(Files)){
   nL <- countLines(paste0(datadir,Files[i]))
@@ -47,7 +52,7 @@ for (i in 1:length(Files)){
   if(is.na(info[1])==FALSE){df$UTC_datetime<-mdy_hm(df$UTC_datetime)}
   if(is.na(info[1])==TRUE){df$UTC_datetime<-ymd_hms(df$UTC_datetime)}
   today<-.POSIXct(Sys.time(), "UTC")
-  if(df$UTC_datetime[1]>today-86400){sel_files<-c(sel_files,Files[i])} #selects files with a last date within 24hr of today
+  if(df$UTC_datetime[1]>today-CUT){sel_files<-c(sel_files,Files[i])} #selects files with a last date within 10days of today
 }
 
 sel_files_IDs<-as.numeric(sapply(strsplit(sel_files, split='_', fixed=TRUE), function(x) (x[1])))
@@ -60,14 +65,10 @@ deploy_matrix<-deploy_matrix%>%select(Bird_ID,TagSerialNumber,Project_ID,Deploym
   filter(is.na(TagSerialNumber)==FALSE)
 deploy_matrix_now<-deploy_matrix%>%filter(is.na(DeploymentEndDatetime_UTC==TRUE))
 
-
 # Deployment check --------------------------------------------------------
 
 IDx<-which(sel_files_IDs %in% deploy_matrix_now$TagSerialNumber)
 sel_files_dply<-sel_files[IDx] #selects the file names with IDs that are currently deployed
-
-#224066 Sri Lanka
-#227351 & 227357 Korea
 
 # Cycles through selected data files ----------------------------------------------
 
@@ -80,7 +81,7 @@ for (i in 1:length(sel_files_dply)){
   if(nrow(deply_sel)==0) next #if the tag isn't in the deployment matrix is will be skipped - important for skipping testing tags etc. 
   
   deply_sel<-deply_sel[n,] #picks the most recent deployment of that tag
-  dat<-read.csv(file = paste0(datadir,sel_files[i]),sep = ",") #could switch to fread to be quicker...
+  dat<-read.csv(file = paste0(datadir,sel_files_dply[i]),sep = ",") #could switch to fread to be quicker...
   
   dat$Project_ID<-deply_sel$Project_ID
   dat$DeployEndShort<-deply_sel$Deployment_End_Short
@@ -92,13 +93,16 @@ for (i in 1:length(sel_files_dply)){
   dat$datetime<-ymd_hms(dat$UTC_timestamp)
   
   today<-Sys.time()
-  dat_sel<-dat[dat$datetime>(today-86400),] #trims to last 24hr of data
+  dat_sel<-dat[dat$datetime>(today-CUT),] #trims to last 10 days of data
   Birds<-rbind(Birds,dat_sel)
 }
 names(Birds)
 
-#finds birds with dive data: filter(depth_m>0)
-birdsWdives<-Birds%>%group_by(device_id)%>%filter(depth_m>0)%>%summarise(n=n())
+#finds birds with dive & temperature data: filter(depth_m>0)
+(birdsWdives<-Birds%>%group_by(device_id)%>%
+  filter(depth_m>0)%>%
+  filter(ext_temperature_C>0)%>%
+  summarise(n=n()))
 
 #selects just birds with dive data via device ID
 birdies<-Birds[which(Birds$device_id %in% birdsWdives$device_id),]
@@ -151,8 +155,15 @@ DIVE<-data.frame()
 for (i in 1:length(diveIDs)){
 
   dive<-Birds_dpth%>%filter(DiveID==diveIDs[i])
-  #dive<-Birds_dpth%>%filter(DiveID=="23_231684")
+  dive<-Birds_dpth%>%filter(DiveID=="0_223922") #for trouble shooting errors
 
+  #skips dives that don't come back to the surface
+  if(dive$depth[nrow(dive)]>5) next
+
+  #if(length(unique(dive$tdiff<0))>1){print(paste0("Time Stamp Error: ",diveIDs[i])); next}
+  #timestamp error to be addressed in 2Hz data, could be R processing or in raw data
+  #occurs when decimal seconds are .99 and then proceeding two rows have the wrong minute. 
+   
   dive$Doid<-1:nrow(dive)
   
   if(is.na(dive$tdiff[1])==TRUE){dive$tdiff[1]<-0} #first dives get NA and this switches that to 0
@@ -208,46 +219,51 @@ for (i in 1:length(diveIDs)){
 }
 
 # dive phase plots --------------------------------------------------------
-unique(DIVE$ID)
+(bi<-unique(DIVE$ID))
 ggplot()+
-  geom_point(data=DIVE%>%filter(ID=="231684"),
+  geom_point(data=DIVE%>%filter(ID==bi[1]),
              aes(x=datetime,y=-depth,color=phase))+
   facet_wrap(~DiveID, scales="free")
 
 #TO DO - pagenate and save these plots as a pdf. 
 
 # conversion to ATN csv format --------------------------------------------
-  # this is an attempt to join the ATN workflow between the logger and QC stage. 
-  # The Ornitela logger data would be annoying to convert to SMRU GPS data format and the QCd data from these tags is closer to the Ornitela format. 
-  # Also, some of the QC for argos data & cormorants might be different. 
+#TO DO - calculate salinity here?
 
-Tonly<-read.csv("/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/Analysis/realtime_CTD_ATNtoGTS/SMRU GPS/platformQC-gp26-416C-20.csv")
-CTD<-read.csv("/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/Analysis/realtime_CTD_ATNtoGTS/SMRU CTD/platformQC-ft32-TSL-727-22.csv")
-
-Tonly<-Tonly%>%select(-max_dbar,-cnt,-num,-n_temp,-n_photo,-n_cond,-n_sal,-n_fluoro,-n_oxy)
-
-names(CTD)
-head(Tonly, 20)
-Asc<-DIVE%>%filter(phase=="ascent")%>%
+profs<-DIVE%>%filter(phase=="profile")%>%
   select(-oid,-tdiff,-divedatYN,-time,-phase,-spd,-acc,-bottom,-depth_diff,-Doid)
-Asc<-Asc %>% 
+profs<-profs %>% 
   dplyr::group_by(DiveID) %>%
-  dplyr::mutate(datetime = max(datetime, na.rm=T))
+  dplyr::mutate(datetime = max(datetime, na.rm=T)) #replaces times with max profile time
 
-head(Asc)
-names(Asc)
-Asc<-rename(Asc,platform_id=ID)
-Asc<-rename(Asc,profile=DiveID)
-Asc<-rename(Asc,ext_temperature_C=temperature)
-Asc$ptt<-Asc$platform_id
+head(profs)
+names(profs)
+profs<-rename(profs,platform_id=ID)
+profs<-rename(profs,profile=DiveID)
+profs<-rename(profs,temperature=ext_temperature_C)
+profs$ptt<-profs$platform_id
 
 # GPS clean ---------------------------------------------------------------
-#TO DO: GPS speed filter goes here
+#add slower sp. filter for penguins
+
 gps<-Birds%>%
   filter(!is.na(lat))%>% #removes NA
-  filter(lat!=0 & lon!=0)%>% #removes (0,0)
-  filter(datatype=="GPSD") #finds all post dive GPS locations
+  filter(lat!=0 & lon!=0) #removes (0,0)
+
 gps$tdiff_sec <-round(difftime(gps$datetime, lag(gps$datetime, 1),units = "secs"),2)
+
+#rough speed filter 
+ids<-unique(profs$platform_id)
+gps_sp<-NULL
+for (j in 1:length(ids)){
+  Locs1<-gps%>%filter(device_id==ids[j])
+  try(mfilter<-vmask(lat=Locs1$lat, lon=Locs1$lon, dtime=Locs1$datetime, vmax=20), silent=FALSE) #
+  #if mfilter isn't made this makes one that selects all points
+  if (exists("mfilter")==FALSE) mfilter<-rep("not", nrow(Locs1))
+  Locs1$mfilter<-mfilter
+  Locs<-Locs1%>%filter(mfilter!="removed")
+  gps_sp<-rbind(gps_sp,Locs)
+}
 
 names(gps)
 
@@ -270,35 +286,43 @@ gps_burstID_sel<-gps_burstID%>%
        select(device_id,datatype,satcount,lat,lon,hdop, datetime)%>%
   filter(satcount>3)
 
-head(Asc)
+head(profs)
 
-IDs<-unique(Asc$platform_id)
-asc_gps<-NULL
+IDs<-unique(profs$platform_id)
+profs_gps<-NULL
 for (i in 1:length(IDs)){
   gps<-gps_burstID_sel%>%filter(device_id==IDs[i])
   if(nrow(gps)==0) next
   
-  asc<-Asc%>%filter(platform_id==IDs[i])%>%group_by(platform_id,profile)%>%
+  profs<-profs%>%filter(platform_id==IDs[i])%>%group_by(platform_id,profile)%>%
     summarise(dt=max(datetime))
-  asc$gpsID<-NA
-  asc$lat<-NA
-  asc$lon<-NA
-  asc$gpstdiff<-NA
-  asc$dt_gps<-ymd_hms("2000-01-01 01:01:01")
+  profs$gpsID<-NA
+  profs$lat<-NA
+  profs$lon<-NA
+  profs$gpstdiff<-NA
+  profs$dt_gps<-ymd_hms("2000-01-01 01:01:01")
   
-  for(j in 1:nrow(asc)){
-    gps$Pdiff<-abs(difftime(gps$datetime, asc$dt[j],units = "secs"))
-    asc$gpsID[j]<-which(gps$Pdiff==min(gps$Pdiff))
-    asc$gpstdiff[j]<-min(gps$Pdiff)
-    asc$lat[j]<-gps$lat[which(gps$Pdiff==min(gps$Pdiff))]
-    asc$lon[j]<-gps$lon[which(gps$Pdiff==min(gps$Pdiff))]
-    asc$dt_gps[j]<-gps$datetime[which(gps$Pdiff==min(gps$Pdiff))]
+  for(j in 1:nrow(profs)){
+    gps$Pdiff<-abs(difftime(gps$datetime, profs$dt[j],units = "secs"))
+    profs$gpsID[j]<-which(gps$Pdiff==min(gps$Pdiff))
+    profs$gpstdiff[j]<-min(gps$Pdiff)
+    profs$lat[j]<-gps$lat[which(gps$Pdiff==min(gps$Pdiff))]
+    profs$lon[j]<-gps$lon[which(gps$Pdiff==min(gps$Pdiff))]
+    profs$dt_gps[j]<-gps$datetime[which(gps$Pdiff==min(gps$Pdiff))]
 }
-asc_gps<-rbind(asc_gps,asc)
+profs_gps<-rbind(profs_gps,profs)
 }
 
-asc_gps<-asc_gps%>%group_by(platform_id)%>%arrange(dt)
-head(Asc)
-head(asc_gps)
-left_join(Asc,asc_gps,)
+profs_gps<-profs_gps%>%group_by(platform_id)%>%arrange(dt)
+head(profs)
+head(profs_gps)
+#left_join(profs,profs_gps,)
+
+
+# trim to time limit (*new* profiles only) --------------------------------
+
+
+# cross reference previously transmitted profiles -------------------------
+
+
     
