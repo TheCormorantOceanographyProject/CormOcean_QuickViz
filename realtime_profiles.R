@@ -31,8 +31,8 @@ Files1<-rownames(my_files$info[1])[which(my_files$info[1] < 309)] #selects files
 
 now<-Sys.time()
 tz_str<-Sys.timezone() #adds in system timezone
-CUT<-86400*10
-tcut<-now-CUT #24hr in seconds*10
+CUT<-86400*3 #three days might make code managable to run?
+tcut<-now-CUT #24hr in seconds*3
 dates<-my_files$info[5]
 dates$datetime<-ymd_hms(dates$ctime,tz = tz_str)
 
@@ -155,7 +155,7 @@ DIVE<-data.frame()
 for (i in 1:length(diveIDs)){
 
   dive<-Birds_dpth%>%filter(DiveID==diveIDs[i])
-  dive<-Birds_dpth%>%filter(DiveID=="0_223922") #for trouble shooting errors
+  #dive<-Birds_dpth%>%filter(DiveID=="0_223922") #for trouble shooting errors
 
   #skips dives that don't come back to the surface
   if(dive$depth[nrow(dive)]>5) next
@@ -221,7 +221,7 @@ for (i in 1:length(diveIDs)){
 # dive phase plots --------------------------------------------------------
 (bi<-unique(DIVE$ID))
 ggplot()+
-  geom_point(data=DIVE%>%filter(ID==bi[1]),
+  geom_point(data=DIVE%>%filter(ID==bi[1]), #adjust number to see each bird
              aes(x=datetime,y=-depth,color=phase))+
   facet_wrap(~DiveID, scales="free")
 
@@ -281,6 +281,9 @@ gps_burstID<-gps_burstID%>%group_by(device_id,gpsDiveburstID)%>%
 
 
 # find GPS point for each profile -----------------------------------------
+# TODO: maybe rewrites the profs data?
+# DOESN"T WORK YET
+
 gps_burstID_sel<-gps_burstID%>%
        ungroup()%>%
        select(device_id,datatype,satcount,lat,lon,hdop, datetime)%>%
@@ -294,23 +297,24 @@ for (i in 1:length(IDs)){
   gps<-gps_burstID_sel%>%filter(device_id==IDs[i])
   if(nrow(gps)==0) next
   
-  profs<-profs%>%filter(platform_id==IDs[i])%>%group_by(platform_id,profile)%>%
-    summarise(dt=max(datetime))
-  profs$gpsID<-NA
-  profs$lat<-NA
-  profs$lon<-NA
-  profs$gpstdiff<-NA
-  profs$dt_gps<-ymd_hms("2000-01-01 01:01:01")
+  profs_sel<-profs%>%filter(platform_id==IDs[i])%>%
+    group_by(platform_id,profile)%>%
+    summarise(dt=max(dt))
+  profs_sel$gpsID<-NA
+  profs_sel$lat<-NA
+  profs_sel$lon<-NA
+  profs_sel$gpstdiff<-NA
+  profs_sel$dt_gps<-ymd_hms("2000-01-01 01:01:01")
   
-  for(j in 1:nrow(profs)){
+  for(j in 1:nrow(profs_sel)){
     gps$Pdiff<-abs(difftime(gps$datetime, profs$dt[j],units = "secs"))
-    profs$gpsID[j]<-which(gps$Pdiff==min(gps$Pdiff))
-    profs$gpstdiff[j]<-min(gps$Pdiff)
-    profs$lat[j]<-gps$lat[which(gps$Pdiff==min(gps$Pdiff))]
-    profs$lon[j]<-gps$lon[which(gps$Pdiff==min(gps$Pdiff))]
-    profs$dt_gps[j]<-gps$datetime[which(gps$Pdiff==min(gps$Pdiff))]
+    profs_sel$gpsID[j]<-which(gps$Pdiff==min(gps$Pdiff))
+    profs_sel$gpstdiff[j]<-min(gps$Pdiff)
+    profs_sel$lat[j]<-gps$lat[which(gps$Pdiff==min(gps$Pdiff))]
+    profs_sel$lon[j]<-gps$lon[which(gps$Pdiff==min(gps$Pdiff))]
+    profs_sel$dt_gps[j]<-gps$datetime[which(gps$Pdiff==min(gps$Pdiff))]
 }
-profs_gps<-rbind(profs_gps,profs)
+profs_gps<-rbind(profs_gps,profs_sel)
 }
 
 profs_gps<-profs_gps%>%group_by(platform_id)%>%arrange(dt)
