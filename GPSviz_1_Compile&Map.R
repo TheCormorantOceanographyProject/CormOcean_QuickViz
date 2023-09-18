@@ -27,7 +27,7 @@ dm<-deploy_matrix%>%select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDat
   filter(is.na(TagSerialNumber)==FALSE)
 
 prjt<-unique(dm$Project_ID)
-
+prjt<-prjt[prjt!="USACRBRDO14"]
 
 # Loop through each project -----------------------------------------------
 
@@ -35,11 +35,12 @@ prjt<-unique(dm$Project_ID)
 # eventually change to pull in gps only files
 
 
-for (i in 1:length(prjt)){
+for (i in 27:length(prjt)){
   
   Files<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"), full.names = TRUE)
   filenames<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"))
   
+  if (length(Files)==0) next
 # Loads Data ------------------------------------------------
 birds<-NULL
 for (j in 1:length(Files)){
@@ -47,6 +48,7 @@ for (j in 1:length(Files)){
   tagID<-sapply(strsplit(filenames[j], split='_', fixed=TRUE), function(x) (x[1]))
   dm_p<-dm%>%filter(Project_ID==prjt[i])
   deply_sel<-dm_p[dm_p$TagSerialNumber==tagID[1],]
+  deply_sel<-deply_sel[1,]
   
   dat <- read.csv(Files[j], header=TRUE, nrows = 0,  skipNul=TRUE)
   if(ncol(dat)==1) next
@@ -57,7 +59,7 @@ for (j in 1:length(Files)){
   dat<-dat%>%filter(is.na(lat)==FALSE)
   dat$datetime<-ymd_hms(dat$UTC_timestamp)
   
-  dat$Project_ID<-deply_sel$Project_ID
+  dat$Project_ID<-prjt[i]
   
   if(is.na(deply_sel$DeploymentEndDatetime_UTC)==TRUE) {dat<-dat%>%filter(UTC_timestamp>deply_sel$DeploymentStartDatetime)}
   if(is.na(deply_sel$DeploymentEndDatetime_UTC)==FALSE) {dat<-dat%>%filter(UTC_timestamp>deply_sel$DeploymentStartDatetime & UTC_timestamp<deply_sel$DeploymentEndDatetime_UTC)}
@@ -74,7 +76,9 @@ for (j in 1:length(Files)){
   birds<-rbind(birds,dat)
 }
 
-# Speed Filter ------------------------------------------------------------
+  if(nrow(birds)==0) next
+
+  # Speed Filter ------------------------------------------------------------
 birds$Uni_ID<-paste0(birds$Project_ID,"_",birds$device_id)
 IDs<-unique(birds$Uni_ID)
 
@@ -111,13 +115,20 @@ head(locs)
 saveRDS(locs, paste0(usrdir,savedir,"Processed_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
 
 # Map Check --------------------------------------------------------------------
+# Pulls in saved data and plots
+
+for (i in 1:length(prjt)){
+  
+locs<-readRDS(paste0(usrdir,savedir,"Processed_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
+
+
 w2hr<-map_data('world')
 
 locs_wgs84<-st_as_sf(locs,coords=c('lon','lat'),remove = F,crs = 4326)
 
 y_min<-min(locs$lat)-.25
-y_max<-max(locs$lat)-.25
-x_min<-min(locs$lon)+.25
+y_max<-max(locs$lat)+.25
+x_min<-min(locs$lon)-.25
 x_max<-max(locs$lon)+.25
 
 dt<-Sys.Date()
