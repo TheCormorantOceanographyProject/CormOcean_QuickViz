@@ -142,7 +142,7 @@ locs$date<-date(locs$UTC_datetime)
 names(locs)
 ggplot()+
   geom_point(data=locs, aes(y=as.factor(device_id),x=date))+
-  ylab("")
+  ylab("") 
 ggsave(paste0(usrdir,savedir,"PLOTS/DeploymentCoverage/",prjt[i],"_",dt,"_TimeFrame.png"), dpi=300)
 
 }
