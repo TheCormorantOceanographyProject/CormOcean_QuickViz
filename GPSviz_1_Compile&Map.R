@@ -23,7 +23,7 @@ if(Sys.info()[7]=="rachaelorben") {
 deploy_matrix<-read.csv(paste0(usrdir,deplymatrix))
 deploy_matrix$DeploymentStartDatetime<-mdy_hm(deploy_matrix$DeploymentStartDatetime)-(deploy_matrix$UTC_offset_deploy*60*60)
 deploy_matrix$DeploymentEndDatetime_UTC<-mdy_hm(deploy_matrix$DeploymentEndDatetime_UTC)
-dm<-deploy_matrix%>%select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC)%>%
+dm<-deploy_matrix%>%select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacture)%>%
   filter(is.na(TagSerialNumber)==FALSE)
 
 prjt<-unique(dm$Project_ID)
@@ -120,7 +120,7 @@ saveRDS(locs, paste0(usrdir,savedir,"Processed_Deployment_Data/",prjt[i],"_GPS_S
 for (i in 1:length(prjt)){
   
 locs<-readRDS(paste0(usrdir,savedir,"Processed_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
-
+dm_prj<-dm%>%filter(Project_ID==prjt[i])
 
 w2hr<-map_data('world')
 
@@ -151,8 +151,18 @@ ggsave(paste0(usrdir,savedir,"PLOTS/DeploymentMaps/",prjt[i],"_",dt,"_Map.png"),
 # All Bird Data Coverage --------------------------------------------------
 locs$date<-date(locs$UTC_datetime)
 names(locs)
+dm_prj_O<-dm_prj%>%filter(TagManufacture=="Ornitela")
+dm_prj_O$start<-date(dm_prj_O$DeploymentStartDatetime)
+dm_prj_O$end<-date(dm_prj_O$DeploymentEndDatetime_UTC)
+dm_prj_O<-dm_prj_O%>%rename("device_id"="TagSerialNumber")
+dm_prj_O<-dm_prj_O%>%select(device_id,start,end)
+dm_prj<-dm_prj_O %>% 
+  pivot_longer(-device_id, names_to = "d_info", values_to = "date")
+
+
 ggplot()+
-  geom_point(data=locs, aes(y=as.factor(device_id),x=date))+
+  geom_point(data=locs, aes(y=as.factor(device_id),x=date), size=0.05)+
+  geom_point(data=dm_prj, aes(y=as.factor(device_id),x=date,color=d_info, fill=d_info))+
   ylab("") 
 ggsave(paste0(usrdir,savedir,"PLOTS/DeploymentCoverage/",prjt[i],"_",dt,"_TimeFrame.png"), dpi=300)
 
