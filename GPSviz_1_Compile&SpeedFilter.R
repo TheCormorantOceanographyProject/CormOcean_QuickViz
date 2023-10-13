@@ -26,21 +26,32 @@ deploy_matrix$DeploymentEndDatetime_UTC<-mdy_hm(deploy_matrix$DeploymentEndDatet
 dm<-deploy_matrix%>%select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacture)%>%
   filter(is.na(TagSerialNumber)==FALSE)
 
-prjt<-unique(dm$Project_ID)
-prjt<-prjt[prjt!="USACRBRDO14"]
+#all project names
+prjt_all<-unique(dm$Project_ID)
+
+#projects with tags currently deployed
+tags_current<-dm%>%filter(is.na(DeploymentEndDatetime_UTC))
+prjt_current<-unique(prjt_current$Project_ID)
+
+#projects with all end dates complete
+prjt_complete<-prjt_all[!(prjt_all %in% prjt_current)]
+
+#projects to process: change as needed
+prjt<-prjt_current
+#prjt<-prjt_all
+#prjt<-prjt[prjt!="USACRBRDO14"]
 
 # Loop through each project -----------------------------------------------
 
 # Find Project Data Files -------------------------------------------------
 # eventually change to pull in gps only files
-
-
 for (i in 27:length(prjt)){
   
   Files<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"), full.names = TRUE)
   filenames<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"))
   
   if (length(Files)==0) next
+
 # Loads Data ------------------------------------------------
 birds<-NULL
 for (j in 1:length(Files)){
@@ -78,7 +89,7 @@ for (j in 1:length(Files)){
 
   if(nrow(birds)==0) next
 
-  # Speed Filter ------------------------------------------------------------
+# Speed Filter ------------------------------------------------------------
 birds$Uni_ID<-paste0(birds$Project_ID,"_",birds$device_id)
 IDs<-unique(birds$Uni_ID)
 
@@ -114,57 +125,4 @@ locs<-locs%>%group_by(device_id,gpsDiveburstID)%>%
 head(locs)
 saveRDS(locs, paste0(usrdir,savedir,"Processed_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
 
-# Map Check --------------------------------------------------------------------
-# Pulls in saved data and plots
-
-for (i in 1:length(prjt)){
-  
-locs<-readRDS(paste0(usrdir,savedir,"Processed_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
-dm_prj<-dm%>%filter(Project_ID==prjt[i])
-
-w2hr<-map_data('world')
-
-locs_wgs84<-st_as_sf(locs,coords=c('lon','lat'),remove = F,crs = 4326)
-
-y_min<-min(locs$lat)-.25
-y_max<-max(locs$lat)+.25
-x_min<-min(locs$lon)-.25
-x_max<-max(locs$lon)+.25
-
-dt<-Sys.Date()
-ids<-unique(locs$Uni_ID)
-
-#quartz()
-ggplot()+
-    geom_polygon(data=w2hr,aes(long,lat,group=group),fill="gray50",color="grey5",linewidth=0.1)+
-    geom_sf(data = locs_wgs84, aes(color=Uni_ID), size=.01)+
-    scale_color_manual(values=met.brewer("Tam", length(ids)))+
-    coord_sf(xlim = c(x_min,x_max),ylim=c(y_min,y_max))+
-  xlab("Longitude")+
-  ylab("Latitude")+
-    theme_bw()+
-  theme(legend.title=element_blank(),
-        legend.text = element_blank())+
-  guides(colour = guide_legend(override.aes = list(size=3)))
-ggsave(paste0(usrdir,savedir,"PLOTS/DeploymentMaps/",prjt[i],"_",dt,"_Map.png"), dpi=300)
-
-# All Bird Data Coverage --------------------------------------------------
-locs$date<-date(locs$UTC_datetime)
-names(locs)
-dm_prj_O<-dm_prj%>%filter(TagManufacture=="Ornitela")
-dm_prj_O$start<-date(dm_prj_O$DeploymentStartDatetime)
-dm_prj_O$end<-date(dm_prj_O$DeploymentEndDatetime_UTC)
-dm_prj_O<-dm_prj_O%>%rename("device_id"="TagSerialNumber")
-dm_prj_O<-dm_prj_O%>%select(device_id,start,end)
-dm_prj<-dm_prj_O %>% 
-  pivot_longer(-device_id, names_to = "d_info", values_to = "date")
-
-
-ggplot()+
-  geom_point(data=locs, aes(y=as.factor(device_id),x=date), size=0.05)+
-  geom_point(data=dm_prj, aes(y=as.factor(device_id),x=date,color=d_info, fill=d_info))+
-  ylab("") 
-ggsave(paste0(usrdir,savedir,"PLOTS/DeploymentCoverage/",prjt[i],"_",dt,"_TimeFrame.png"), dpi=300)
-
 }
-
