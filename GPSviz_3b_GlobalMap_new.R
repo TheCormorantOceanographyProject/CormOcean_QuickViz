@@ -75,7 +75,7 @@ ggplot()+
   theme(legend.position ="none",axis.title = element_blank())
 ggsave(paste0(userdir,savedir,"WorldCormorants_",dt,".png"), dpi=300)
 
-#the rest of the code is under constuction...
+#the rest of the code is under construction...
 WORLD<-ggplot()+
   geom_polygon(data=w2hr,aes(long,lat,group=group),fill="gray25",color="grey60",size=0.1)+
   geom_sf(data = locs_wgs84, color="orange", size=.3)+

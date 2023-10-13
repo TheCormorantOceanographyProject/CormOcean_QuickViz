@@ -22,36 +22,29 @@ dm<-deploy_matrix%>%select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDat
 prjt<-unique(deploy_matrix$Project_ID)
 rm(deploy_matrix)
 
-# Map Check --------------------------------------------------------------------
-# Pulls in saved data and plots
+# needs the following to be ajusted to work with data from Ornitela
 
-prjt
-
+extent<-NULL
 for (i in 1:length(prjt)){
   
   locs<-readRDS(paste0(usrdir,savedir,"Processed_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
-  
-DAT<-NULL
-for (j in 1:length(Files)){
-  dat<-read.csv(file=Files[j],stringsAsFactors=FALSE,sep = ",",fill=TRUE) 
   #dat<-dat%>%filter(is.na(LatDegree)==FALSE)
   dat<-dat%>%select(BirdID,LatDegree,LongDegree,ObsDepth,CalDepth)
-  DAT<-rbind(DAT,dat)
+  
+  
+  
+  DAT$species<-sapply(strsplit(DAT$BirdID, split='_', fixed=TRUE), function(x) (x[1]))
+
+  min(DAT$LatDegree, na.rm=TRUE)
+  max(DAT$LatDegree, na.rm=TRUE)
+  
+  min(DAT$LongDegree, na.rm=TRUE)
+  max(DAT$LongDegree, na.rm=TRUE)
+
+  max(abs(DAT$CalDepth), na.rm =TRUE)
+  
+  info<-c(prjt[i],)
+  extent<-rbind(extent,info)
+
 }
-DAT$species<-sapply(strsplit(DAT$BirdID, split='_', fixed=TRUE), function(x) (x[1]))
-
-min(DAT$LatDegree, na.rm=TRUE)
-max(DAT$LatDegree, na.rm=TRUE)
-
-min(DAT$LongDegree, na.rm=TRUE)
-max(DAT$LongDegree, na.rm=TRUE)
-
-max(abs(DAT$CalDepth), na.rm =TRUE)
-
-ggplot()+
-  geom_path(data=DAT%>%filter(is.na(LatDegree)==FALSE), 
-            aes(x=LongDegree,y=LatDegree, group=BirdID, color=species))+
-  #facet_wrap(~species)+
-  NULL
-
 
