@@ -343,7 +343,7 @@ for (i in 1:length(IDs)){
   x_min<-min(locs$lon)-.5
   x_max<-max(locs$lon)+.5
   
-  (map <- get_map(c(left = x_min, bottom = y_min, right = x_max, top = y_max),source="stamen"))
+  (map <- get_map(c(left = x_min, bottom = y_min, right = x_max, top = y_max),source="osm"))
   
   temp_plot[[i]]<-
     #geom_polygon(data=w2hr,aes(long,lat,group=group),fill="grey70",color="grey60",linewidth=0.1)+

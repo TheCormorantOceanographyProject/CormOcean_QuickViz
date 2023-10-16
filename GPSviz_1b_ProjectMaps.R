@@ -35,7 +35,7 @@ rm(deploy_matrix)
 # Map Check --------------------------------------------------------------------
 # Pulls in saved data and plots
 
-prjt
+prjt<-prjt[prjt!="USACRBRDO14"]
 
 for (i in 1:length(prjt)){
   

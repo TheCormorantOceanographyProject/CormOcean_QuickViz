@@ -16,18 +16,21 @@ wrap360 = function(lon) {
 }
 
 if(Sys.info()[7]=="rachaelorben") {
-  userdir<-'/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/'
+  usrdir<-'/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/'
   savedir<-'Analysis/DataViz/'
   deplymatrix<-'data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
   #source('/Users/rachaelorben/git_repos/CormOcean/MakeDive.R')
 }
 
 if(Sys.info()[7]=="Jessica") { 
-  userdir<-'/Users/jessica/Library/CloudStorage/Box-Box/DASHCAMS/'
+  usrdir<-'/Users/jessica/Library/CloudStorage/Box-Box/DASHCAMS/'
   savedir<-'Analysis/DataViz/'
   deplymatrix<-'data/Field Data/DASHCAMS_Deployment_Field_Data.csv'  
   #source('/Users/jessica/git_repos/CormOcean/MakeDive.R')
 }
+
+# Project info ------------------------------------------------------------
+prj_info<-read.csv(paste0(usrdir,"/data/Field Data/Project Titles and IDs.csv"))
 
 #  Deployment matrix ---------------------------------------------
 deploy_matrix<-read.csv(paste0(usrdir,deplymatrix))
@@ -66,20 +69,58 @@ w2hr<-map_data('world')
 
 locs_wgs84<-st_as_sf(locs,coords=c('lon','lat'),remove = F,crs = 4326)
 dt=Sys.Date()
-#quartz()
+quartz(width=10, height=5)
 ggplot()+
   geom_polygon(data=w2hr,aes(long,lat,group=group),fill="gray60",color="grey25",size=0.1)+
   geom_sf(data = locs_wgs84, aes(color=Project_ID), size=.3)+
-  scale_color_manual(values=met.brewer("Johnson", 18))+
+  scale_color_manual(values=met.brewer("Johnson", 25))+
   theme_bw()+
-  theme(legend.position ="none",axis.title = element_blank())
-ggsave(paste0(userdir,savedir,"WorldCormorants_",dt,".png"), dpi=300)
+  #theme(legend.position ="none",axis.title = element_blank())
+ggsave(paste0(usrdir,savedir,"WorldCormorants_",dt,".png"), dpi=300)
+
+library("rnaturalearth")
+library("rnaturalearthdata")
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+class(world)
+
+quartz(width=12, height=5)
+ggplot() +
+  geom_sf(data = world) +
+  coord_sf(crs = "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs ")+
+  geom_sf(data = locs_wgs84, aes(color=Project_ID), size=.3)+
+  scale_color_manual(values=met.brewer("Johnson", 25))+
+  theme_bw()+
+  guides(colour = guide_legend(override.aes = list(size=3)))
+  #theme(legend.position ="none",axis.title = element_blank())
+  
+
+
+library(tidyverse)
+library(ggthemes)
+
+world_map = map_data("world") %>% 
+  filter(! long > 180)
+
+countries = world_map %>% 
+  distinct(region) %>% 
+  rowid_to_column()
+
+countries %>% 
+  ggplot() +
+  geom_map(map = world_map,aes(fill = rowid, map_id = region)) +
+  geom_sf(data = locs_wgs84, aes(color=Project_ID), size=.3)+
+  scale_color_manual(values=met.brewer("Johnson", 25))+
+  expand_limits(x = world_map$long, y = world_map$lat) +
+  coord_map("moll") +
+  theme_map()
+
 
 #the rest of the code is under construction...
 WORLD<-ggplot()+
   geom_polygon(data=w2hr,aes(long,lat,group=group),fill="gray25",color="grey60",size=0.1)+
   geom_sf(data = locs_wgs84, color="orange", size=.3)+
-  scale_color_manual(values=met.brewer("Johnson", 18))+
+  scale_color_manual(values=met.brewer("Johnson", 25))+
   theme_bw()+
   theme(legend.position ="none",axis.title = element_blank())
 ggsave("/Users/rachaelorben/Desktop/WorldCormorants_orange.png", dpi=300)
