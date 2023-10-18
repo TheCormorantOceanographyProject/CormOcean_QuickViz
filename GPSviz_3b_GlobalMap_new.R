@@ -1,18 +1,11 @@
 library(ggplot2)
 library(lubridate)
 library(dplyr)
-library(data.table) #rename
-library(stringr)
-library(R.utils)
-library(tidyr)
-library(argosfilter)
-library(sf)
 library(MetBrewer)
-library(cowplot)
 
 library(tidyverse)
-library(raster)
 library(rnaturalearth)
+library(rnaturalearthdata)
 library(sf)
 library(patchwork)
 
@@ -68,66 +61,82 @@ for (i in 1:length(prjt)){
 }
 
 unique(locs$Project_ID)
+nC<-length(unique(locs$Project_ID))
 
 
 # Maps --------------------------------------------------------------------
 w2hr<-map_data('world')
 
 locs_wgs84<-st_as_sf(locs,coords=c('lon','lat'),remove = F,crs = 4326)
+
 dt=Sys.Date()
-quartz(width=10, height=5)
+
+
 ggplot()+
-  geom_polygon(data=w2hr,aes(long,lat,group=group),fill="gray60",color="grey25",size=0.1)+
+  geom_polygon(data=w2hr,aes(long,lat,group=group),fill="gray75",color="white",size=0.1)+
   geom_sf(data = locs_wgs84, aes(color=Project_ID), size=.3)+
-  scale_color_manual(values=met.brewer("Johnson", 25))+
+  #scale_color_manual(values=met.brewer("Johnson", nC))+
+  scale_color_manual(values=met.brewer("Tam", nC))+
+  xlab("Longitude")+
+  ylab("Latitude")+
   theme_bw()+
-  #theme(legend.position ="none",axis.title = element_blank())
-ggsave(paste0(usrdir,savedir,"WorldCormorants_",dt,".png"), dpi=300)
-
-library("rnaturalearth")
-library("rnaturalearthdata")
-
-world <- ne_countries(scale = "medium", returnclass = "sf")
-class(world)
-
-quartz(width=12, height=5)
-ggplot() +
-  geom_sf(data = world) +
-  coord_sf(crs = "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs ")+
-  geom_sf(data = locs_wgs84, aes(color=Project_ID), size=.3)+
-  scale_color_manual(values=met.brewer("Johnson", 25))+
-  theme_bw()+
+  theme(panel.background = element_rect(fill="darkslategray3"),
+        legend.title=element_blank())+
   guides(colour = guide_legend(override.aes = list(size=3)))
   #theme(legend.position ="none",axis.title = element_blank())
-  
+ggsave(paste0(usrdir,savedir,"WorldCormorants_",dt,".png"), dpi=300,width=12, height=5)
 
 
-library(tidyverse)
-library(ggthemes)
+# Robertson projection (natural earth version) ---------------------------------------------------
 
-world_map = map_data("world") %>% 
-  filter(! long > 180)
+robinson <- "+proj=robin +over"
 
-countries = world_map %>% 
-  distinct(region) %>% 
-  rowid_to_column()
+countries <- ne_countries(scale = "medium", returnclass = "sf")
+class(countries)
 
-countries %>% 
-  ggplot() +
-  geom_map(map = world_map,aes(fill = rowid, map_id = region)) +
-  geom_sf(data = locs_wgs84, aes(color=Project_ID), size=.3)+
-  scale_color_manual(values=met.brewer("Johnson", 25))+
-  expand_limits(x = world_map$long, y = world_map$lat) +
-  coord_map("moll") +
-  theme_map()
+# create a bounding box for the robinson projection
+# we'll use this as "trim" to remove jagged edges at
+# end of the map (due to the curved nature of the
+# robinson projection)
+bb <- sf::st_union(sf::st_make_grid(
+  st_bbox(c(xmin = -180,
+            xmax = 180,
+            ymax = 90,
+            ymin = -90), crs = st_crs(4326)),
+  n = 100))
+bb_robinson <- st_transform(bb, as.character(robinson))
+
+# transform the coastline to robinson
+countries_robinson <- st_transform(countries, robinson)
+locs_robinson<-st_transform(locs_wgs84, robinson)
 
 
-#the rest of the code is under construction...
-WORLD<-ggplot()+
-  geom_polygon(data=w2hr,aes(long,lat,group=group),fill="gray25",color="grey60",size=0.1)+
-  geom_sf(data = locs_wgs84, color="orange", size=.3)+
-  scale_color_manual(values=met.brewer("Johnson", 25))+
+ggplot() +
+  geom_sf(data=countries_robinson,
+          colour='grey25',
+          linetype='solid',
+          fill= NA,
+          size=0.3) +
+  geom_sf(data=bb_robinson,
+          colour='black',
+          linetype='solid',
+          fill = NA,
+          size=0.7) +
+  geom_sf(data = locs_robinson, aes(color=Project_ID), size=.4)+
+  #scale_color_manual(values=met.brewer("Johnson", 25))+
+  scale_color_manual(values=met.brewer("Tam", 25))+
+  #xlab("Longitude")+
+  #ylab("Latitude")+
+  labs(
+    title = "Cormorant Oceanography Project",
+    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (2019-2023)",
+    caption = "
+Data: Cormorant Oceanography Project") +
   theme_bw()+
-  theme(legend.position ="none",axis.title = element_blank())
-ggsave("/Users/rachaelorben/Desktop/WorldCormorants_orange.png", dpi=300)
+  theme(legend.title=element_blank())+
+  guides(colour = guide_legend(override.aes = list(size=3)))
+ggsave(paste0(usrdir,savedir,"WorldCormorants_RobertsonPrj_",dt,".png"), dpi=300,width=12, height=5)
 
+
+
+# Robertson projection ----------------------------------------------------
