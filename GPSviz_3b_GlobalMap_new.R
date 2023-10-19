@@ -60,6 +60,8 @@ for (i in 1:length(prjt)){
   locs<-rbind(locs,locs1)
 }
 
+locs<-left_join(locs,prj_info,by="Project_ID")
+
 unique(locs$Project_ID)
 nC<-length(unique(locs$Project_ID))
 
@@ -113,30 +115,77 @@ locs_robinson<-st_transform(locs_wgs84, robinson)
 
 ggplot() +
   geom_sf(data=countries_robinson,
-          colour='grey25',
+          colour='grey75',
           linetype='solid',
-          fill= NA,
+          fill= 'grey40',
           size=0.3) +
   geom_sf(data=bb_robinson,
           colour='black',
           linetype='solid',
           fill = NA,
           size=0.7) +
-  geom_sf(data = locs_robinson, aes(color=Project_ID), size=.4)+
+  geom_sf(data = locs_robinson, aes(color=Project_ID), size=.5)+
   #scale_color_manual(values=met.brewer("Johnson", 25))+
-  scale_color_manual(values=met.brewer("Tam", 25))+
+  scale_color_manual(values=met.brewer("Tam", (nC+10)))+
   #xlab("Longitude")+
   #ylab("Latitude")+
   labs(
     title = "Cormorant Oceanography Project",
     subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (2019-2023)",
-    caption = "
-Data: Cormorant Oceanography Project") +
+    caption = "Data: Cormorant Oceanography Project") +
   theme_bw()+
   theme(legend.title=element_blank())+
   guides(colour = guide_legend(override.aes = list(size=3)))
-ggsave(paste0(usrdir,savedir,"WorldCormorants_RobertsonPrj_",dt,".png"), dpi=300,width=12, height=5)
+ggsave(paste0(usrdir,savedir,"WorldCormorants_Projects_RobertsonPrj_",dt,".png"), dpi=300,width=12, height=5)
+
+# SPECIES: Robertson projection (natural earth version) ---------------------------------------------------
+
+robinson <- "+proj=robin +over"
+
+countries <- ne_countries(scale = "medium", returnclass = "sf")
+class(countries)
+
+# create a bounding box for the robinson projection
+# we'll use this as "trim" to remove jagged edges at
+# end of the map (due to the curved nature of the
+# robinson projection)
+bb <- sf::st_union(sf::st_make_grid(
+  st_bbox(c(xmin = -180,
+            xmax = 180,
+            ymax = 90,
+            ymin = -90), crs = st_crs(4326)),
+  n = 100))
+bb_robinson <- st_transform(bb, as.character(robinson))
+
+# transform the coastline to robinson
+countries_robinson <- st_transform(countries, robinson)
+locs_robinson<-st_transform(locs_wgs84, robinson)
+
+nS<-length(unique(locs$Speces4))
+
+ggplot() +
+  geom_sf(data=countries_robinson,
+          colour='grey75',
+          linetype='solid',
+          fill= 'grey40',
+          size=0.3) +
+  geom_sf(data=bb_robinson,
+          colour='black',
+          linetype='solid',
+          fill = NA,
+          size=0.7) +
+  geom_sf(data = locs_robinson, aes(color=Species_Long), size=.5)+
+  #scale_color_manual(values=met.brewer("Johnson", 25))+
+  scale_color_manual(values=met.brewer("Tam", nS))+
+  #xlab("Longitude")+
+  #ylab("Latitude")+
+  labs(
+    title = "Cormorant Oceanography Project",
+    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (2019-2023)",
+    caption = "Data: Cormorant Oceanography Project") +
+  theme_bw()+
+  theme(legend.title=element_blank())+
+  guides(colour = guide_legend(override.aes = list(size=3)))
+ggsave(paste0(usrdir,savedir,"WorldCormorants_Species_RobertsonPrj_",dt,".png"), dpi=300,width=12, height=5)
 
 
-
-# Robertson projection ----------------------------------------------------
