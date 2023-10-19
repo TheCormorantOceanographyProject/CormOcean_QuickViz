@@ -123,6 +123,6 @@ locs<-locs%>%group_by(device_id,gpsDiveburstID)%>%
   mutate(gpsNum=row_number())
 
 head(locs)
-saveRDS(locs, paste0(usrdir,savedir,"Processed_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
+saveRDS(locs, paste0(usrdir,savedir,"Processed_GPS_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
 
 }
