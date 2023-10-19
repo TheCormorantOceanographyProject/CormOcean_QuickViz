@@ -48,10 +48,18 @@ for (i in 1:length(prjt)){
   filenames<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"))
   
   if (length(Files)==0) next
-  
+
+ a<-seq(1,length(Files),50) 
+ b<-c(seq(50,length(Files),50),length(Files))
+
+ sets<-data.frame(st=a,end=b)
+   
 # Loads Data ------------------------------------------------
-Birds_dpth<-NULL
-  for (j in 1:length(Files)){
+for(k in 1:nrow(sets)){
+  s<-sets[k,]
+  
+  Birds_dpth<-NULL
+  for (j in as.numeric(s[1]):as.numeric(s[2])){
     
     tagID<-sapply(strsplit(filenames[j], split='_', fixed=TRUE), function(x) (x[1]))
     dm_p<-dm%>%filter(Project_ID==prjt[i])
@@ -79,10 +87,10 @@ Birds_dpth<-NULL
                       -acc_x,-acc_y,-acc_z,-mag_x,-mag_y,-mag_z,-int_temperature_C)
     Birds_dpth<-rbind(Birds_dpth,dat)
   }
-  saveRDS(Birds_dpth, paste0(usrdir,savedir,"Processed_Dive_Deployment_Data/",prjt[i],"_DiveOnly.rds"))
+  saveRDS(Birds_dpth, paste0(usrdir,savedir,"Processed_Dive_Deployment_Data/",prjt[i],"_file_",k,"_DiveOnly.rds"))
   
-  if(nrow(Birds_dpth)==0) next
-  rm(dat)
+  #if(nrow(Birds_dpth)==0) next
+  rm(dat,Birds_dpth)
 }
-
+}
 
