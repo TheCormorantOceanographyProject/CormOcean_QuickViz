@@ -28,7 +28,7 @@ prjt_all<-unique(dm$Project_ID)
 
 #projects with tags currently deployed
 tags_current<-dm%>%filter(is.na(DeploymentEndDatetime_UTC))
-#prjt_current<-unique(prjt_current$Project_ID)
+prjt_current<-unique(tags_current$Project_ID)
 
 #projects with all end dates complete
 prjt_complete<-prjt_all[!(prjt_all %in% prjt_current)]
@@ -79,32 +79,10 @@ Birds_dpth<-NULL
                       -acc_x,-acc_y,-acc_z,-mag_x,-mag_y,-mag_z,-int_temperature_C)
     Birds_dpth<-rbind(Birds_dpth,dat)
   }
+  saveRDS(Birds_dpth, paste0(usrdir,savedir,"Processed_Dive_Deployment_Data/",prjt[i],"_DiveOnly.rds"))
   
   if(nrow(Birds_dpth)==0) next
   rm(dat)
-# identify dives ----------------------------------------------------------
-Birds_dpth$tdiff_sec <-difftime(Birds_dpth$datetime, lag(Birds_dpth$datetime, 1),units = "secs")
-head(Birds_dpth)
-
-id_num <- which(colnames(Birds_dpth) == "tagID") 
-dt_num <- which(colnames(Birds_dpth) == "datetime") 
-dp_num <- which(colnames(Birds_dpth) == "depth_m") 
-td_num <- which(colnames(Birds_dpth) == "tdiff_sec") 
-
-Birds_dpth_MD<-MakeDive(Birds_dpth,idCol=id_num, #column index with unique ID
-                     dtCol=dt_num, #column index with datetime
-                     depthCol=dp_num, #column index with depth
-                     tdiffCol=td_num, #column index with time difference in seconds
-                     DepthCutOff=1, #depth that dives happen below (meters)
-                     DiveDepthYes=1.5, #dives need to reach 3 meters to be considered a dive event
-                     TimeDiffAllowed_sec=2, #consecutive points need to have a time difference <2 to be in the same event
-                     NumLocCut=2) #dives need to contain three points to be considered a dive, could change this to a duration
-
-Birds_dpth_MD$date<-date(Birds_dpth$datetime)
-Birds_dpth_MD$datatype<-Birds_dpth$datatype
-Birds_dpth_MD$ext_temperature_C<-Birds_dpth$ext_temperature_C
-Birds_dpth_MD$conductivity_mS.cm<-Birds_dpth$conductivity_mS.cm
-
-saveRDS(Birds_dpth_MD, paste0(usrdir,savedir,"Processed_Dive_Deployment_Data/",prjt[i],"_DiveOnlyID.rds"))
 }
+
 
