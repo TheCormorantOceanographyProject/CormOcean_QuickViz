@@ -42,7 +42,7 @@ prjt<-prjt[prjt!="USACRBRDO14"]
 
 # Find Project Data Files -------------------------------------------------
 # eventually change to pull in gps only files
-for (i in 1:length(prjt)){
+for (i in 2:length(prjt)){
   
   Files<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"), full.names = TRUE)
   filenames<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"))
@@ -50,9 +50,10 @@ for (i in 1:length(prjt)){
   if (length(Files)==0) next
 
  a<-seq(1,length(Files),50) 
- b<-c(seq(50,length(Files),50),length(Files))
+ if (length(Files)>50) {b<-c(seq(50,length(Files),50),length(Files))}
 
- sets<-data.frame(st=a,end=b)
+ if (length(Files)>50) {sets<-data.frame(st=a,end=b)}
+ if (length(Files)<51) {sets<-data.frame(st=1,end=length(Files))}
    
 # Loads Data ------------------------------------------------
 for(k in 1:nrow(sets)){
