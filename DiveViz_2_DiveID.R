@@ -51,6 +51,7 @@ for (k in 1:length(Files)){
   Birds_dpth<-rbind(Birds_dpth,birdy_d)
 }
 rm(birdy_d)
+unique(Birds_dpth$datatype)
 
 # identify dives ----------------------------------------------------------
 Birds_dpth$tdiff_sec <-difftime(Birds_dpth$datetime, lag(Birds_dpth$datetime, 1),units = "secs")
@@ -69,6 +70,7 @@ Birds_dpth_MD<-MakeDive(Birds_dpth,idCol=id_num, #column index with unique ID
                         TimeDiffAllowed_sec=2, #consecutive points need to have a time difference <2 to be in the same event
                         NumLocCut=2) #dives need to contain three points to be considered a dive, could change this to a duration
 
+#names(Birds_dpth)
 Birds_dpth_MD$date<-date(Birds_dpth$datetime)
 Birds_dpth_MD$datatype<-Birds_dpth$datatype
 Birds_dpth_MD$ext_temperature_C<-Birds_dpth$ext_temperature_C

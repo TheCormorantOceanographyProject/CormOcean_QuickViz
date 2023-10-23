@@ -2,7 +2,6 @@ library(ggplot2)
 library(lubridate)
 library(dplyr)
 library(MetBrewer)
-
 library(tidyverse)
 library(rnaturalearth)
 library(rnaturalearthdata)

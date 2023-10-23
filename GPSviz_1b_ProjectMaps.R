@@ -39,7 +39,7 @@ prjt<-prjt[prjt!="USACRBRDO14"]
 
 for (i in 1:length(prjt)){
   
-  locs<-readRDS(paste0(usrdir,savedir,"Processed_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
+  locs<-readRDS(paste0(usrdir,savedir,"Processed_GPS_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
   dm_prj<-dm%>%filter(Project_ID==prjt[i])
   
   w2hr<-map_data('world')
@@ -103,6 +103,6 @@ for (i in 1:length(prjt)){
     geom_point(data=dm_prj, aes(y=as.factor(device_id),x=date,color=d_info, fill=d_info))+
     labs(title=dt)+
     ylab("") 
-  ggsave(paste0(usrdir,savedir,"PLOTS/DeploymentCoverage/",prjt[i],"_TimeFrame.png"), dpi=300)
+  ggsave(paste0(usrdir,savedir,"PLOTS/DeploymentCoverage/",prjt[i],"_",dt,"_TimeFrame.png"), dpi=300)
 }
 
