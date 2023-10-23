@@ -36,7 +36,7 @@ indiSUM<-NULL
 projSUM<-NULL
 
 for (i in 1:length(prjt)){
-  locs<-readRDS(paste0(usrdir,savedir,"Processed_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
+  locs<-readRDS(paste0(usrdir,savedir,"Processed_GPS_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
   names(locs)
   
   dm_pjt<-dm%>%filter(Project_ID==prjt[i])%>%filter(TagManufacture=="Ornitela")
