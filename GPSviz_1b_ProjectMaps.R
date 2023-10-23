@@ -67,7 +67,7 @@ for (i in 1:length(prjt)){
     guides(colour = guide_legend(override.aes = list(size=3)))
   ggsave(paste0(usrdir,savedir,"PLOTS/DeploymentMaps/",prjt[i],"_Map.png"), dpi=300)
   
- # #Open Street Map Version: FUNCTIONAL SORTA - NEEDS WORK
+ # #Open Street Map Version: FUNCTIONAL SORTA - NEEDS WORK, street map access has changed Oct 2023
  #  (map <- get_map(c(left = x_min, bottom = y_min, right = x_max, top = y_max),source="stamen"))
  #  
  #  temp_plot<-

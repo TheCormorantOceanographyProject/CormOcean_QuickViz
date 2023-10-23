@@ -54,7 +54,7 @@ prjt<-prjt[prjt!="AUSNIBF23"] #data missing
 # compile tags a minute or two
 locs<-NULL
 for (i in 1:length(prjt)){
-  locs1<-readRDS(paste0(usrdir,savedir,"Processed_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
+  locs1<-readRDS(paste0(usrdir,savedir,"Processed_GPS_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
   names(locs1)
   locs1<-locs1%>%select(device_id,Project_ID, datetime,lat,lon)%>%ungroup()
   locs<-rbind(locs,locs1)
@@ -65,12 +65,10 @@ locs<-left_join(locs,prj_info,by="Project_ID")
 unique(locs$Project_ID)
 nC<-length(unique(locs$Project_ID))
 
-
-# Maps --------------------------------------------------------------------
-w2hr<-map_data('world')
-
 locs_wgs84<-st_as_sf(locs,coords=c('lon','lat'),remove = F,crs = 4326)
 
+# Square World Map  --------------------------------------------------------------------
+w2hr<-map_data('world')
 dt=Sys.Date()
 
 
@@ -89,7 +87,7 @@ ggplot()+
 ggsave(paste0(usrdir,savedir,"WorldCormorants_",dt,".png"), dpi=300,width=12, height=5)
 
 
-# Robertson projection (natural earth version) ---------------------------------------------------
+# PROJECTS: Robertson projection (natural earth version) ---------------------------------------------------
 
 robinson <- "+proj=robin +over"
 
@@ -137,6 +135,33 @@ ggplot() +
   theme(legend.title=element_blank())+
   guides(colour = guide_legend(override.aes = list(size=3)))
 ggsave(paste0(usrdir,savedir,"WorldCormorants_Projects_RobertsonPrj_",dt,".png"), dpi=300,width=12, height=5)
+
+# YEARS: Robertson projection -------------------------------------------------------------------
+ggplot() +
+  geom_sf(data=countries_robinson,
+          colour='grey75',
+          linetype='solid',
+          fill= 'grey40',
+          size=0.3) +
+  geom_sf(data=bb_robinson,
+          colour='black',
+          linetype='solid',
+          fill = NA,
+          size=0.7) +
+  geom_sf(data = locs_robinson, aes(color=Project_ID), size=.5)+
+  #scale_color_manual(values=met.brewer("Johnson", 25))+
+  scale_color_manual(values=met.brewer("Tam", (nC+10)))+
+  #xlab("Longitude")+
+  #ylab("Latitude")+
+  labs(
+    title = "Cormorant Oceanography Project",
+    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (2019-2023)",
+    caption = "Data: Cormorant Oceanography Project") +
+  theme_bw()+
+  theme(legend.title=element_blank())+
+  guides(colour = guide_legend(override.aes = list(size=3)))+
+  facet_wrap(~Year_Initated)
+ggsave(paste0(usrdir,savedir,"WorldCormorants_Projects_by_Years_RobertsonPrj_",dt,".png"), dpi=300,width=12, height=5)
 
 # SPECIES: Robertson projection (natural earth version) ---------------------------------------------------
 
@@ -187,5 +212,6 @@ ggplot() +
   theme(legend.title=element_blank())+
   guides(colour = guide_legend(override.aes = list(size=3)))
 ggsave(paste0(usrdir,savedir,"WorldCormorants_Species_RobertsonPrj_",dt,".png"), dpi=300,width=12, height=5)
+
 
 
