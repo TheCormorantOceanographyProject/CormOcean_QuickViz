@@ -51,17 +51,22 @@ for (k in 1:length(Files)){
   Birds_dpth<-rbind(Birds_dpth,birdy_d)
 }
 rm(birdy_d)
-unique(Birds_dpth$datatype)
 
-# identify dives ----------------------------------------------------------
-Birds_dpth$tdiff_sec <-difftime(Birds_dpth$datetime, lag(Birds_dpth$datetime, 1),units = "secs")
 
-id_num <- which(colnames(Birds_dpth) == "device_id") 
-dt_num <- which(colnames(Birds_dpth) == "datetime") 
-dp_num <- which(colnames(Birds_dpth) == "depth_m") 
-td_num <- which(colnames(Birds_dpth) == "tdiff_sec") 
+# identify dives (by individual) ----------------------------------------------------------
+IDS<-unique(Birds_dpth$device_id)
 
-Birds_dpth_MD<-MakeDive(Birds_dpth,idCol=id_num, #column index with unique ID
+for (j in 1:length(IDS)){
+  birdy_d<-Birds_dpth%>%filter(device_id==IDS[j])
+  
+  birdy_d$tdiff_sec <-difftime(birdy_d$datetime, lag(birdy_d$datetime, 1),units = "secs")
+
+id_num <- which(colnames(birdy_d) == "device_id") 
+dt_num <- which(colnames(birdy_d) == "datetime") 
+dp_num <- which(colnames(birdy_d) == "depth_m") 
+td_num <- which(colnames(birdy_d) == "tdiff_sec") 
+
+Birds_dpth_MD<-MakeDive(birdy_d,idCol=id_num, #column index with unique ID
                         dtCol=dt_num, #column index with datetime
                         depthCol=dp_num, #column index with depth
                         tdiffCol=td_num, #column index with time difference in seconds
@@ -71,11 +76,12 @@ Birds_dpth_MD<-MakeDive(Birds_dpth,idCol=id_num, #column index with unique ID
                         NumLocCut=2) #dives need to contain three points to be considered a dive, could change this to a duration
 
 #names(Birds_dpth)
-Birds_dpth_MD$date<-date(Birds_dpth$datetime)
-Birds_dpth_MD$datatype<-Birds_dpth$datatype
-Birds_dpth_MD$ext_temperature_C<-Birds_dpth$ext_temperature_C
-Birds_dpth_MD$conductivity_mS.cm<-Birds_dpth$conductivity_mS.cm
+birdy_d_MD$date<-date(birdy_d$datetime)
+birdy_d_MD$datatype<-birdy_d$datatype
+birdy_d_MD$ext_temperature_C<-birdy_d$ext_temperature_C
+birdy_d_MD$conductivity_mS.cm<-birdy_d$conductivity_mS.cm
 
-saveRDS(Birds_dpth_MD, paste0(usrdir,savedir,"Processed_DiveID_Deployment_Data/",prjt[i],"_DiveOnlyID.rds"))
+saveRDS(birdy_d_MD, paste0(usrdir,savedir,"Processed_DiveID_Deployment_Data/",prjt[i],"_",IDS[j],"_DiveOnlyID.rds"))
+}
 }
 
