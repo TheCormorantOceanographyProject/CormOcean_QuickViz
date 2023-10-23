@@ -39,21 +39,23 @@ prjt<-prjt_all
 prjt<-prjt[prjt!="USACRBRDO14"]
 
 # Loop through each project -----------------------------------------------
-
-# Find Project Data Files -------------------------------------------------
-# eventually change to pull in gps only files
-Files<-list.files(paste0(usrdir,savedir,"Processed_Dive_Deployment_Data/"), full.names = TRUE)
-filenames<-list.files(paste0(usrdir,savedir,"Processed_Dive_Deployment_Data/"))
-
-for (i in 1:length(Files)){
+for (i in 1:length(prjt)){
   
-Birds_dpth<-readRDS(Files[i])
+# Find Project Data Files -------------------------------------------------
+Files<-list.files(paste0(usrdir,savedir,"Processed_Dive_Deployment_Data/"), pattern = prjt[i],full.names = TRUE)
+filenames<-list.files(paste0(usrdir,savedir,"Processed_Dive_Deployment_Data/"),pattern = prjt[i],)
+
+Birds_dpth<-NULL
+for (k in 1:length(Files)){
+  birdy_d<-readRDS(paste0(usrdir,savedir,"Processed_Dive_Deployment_Data/",prjt[i],"_file_",k,"_DiveOnly.rds"))
+  Birds_dpth<-rbind(Birds_dpth,birdy_d)
+}
+rm(birdy_d)
 
 # identify dives ----------------------------------------------------------
 Birds_dpth$tdiff_sec <-difftime(Birds_dpth$datetime, lag(Birds_dpth$datetime, 1),units = "secs")
-head(Birds_dpth)
 
-id_num <- which(colnames(Birds_dpth) == "tagID") 
+id_num <- which(colnames(Birds_dpth) == "device_id") 
 dt_num <- which(colnames(Birds_dpth) == "datetime") 
 dp_num <- which(colnames(Birds_dpth) == "depth_m") 
 td_num <- which(colnames(Birds_dpth) == "tdiff_sec") 
@@ -63,7 +65,7 @@ Birds_dpth_MD<-MakeDive(Birds_dpth,idCol=id_num, #column index with unique ID
                         depthCol=dp_num, #column index with depth
                         tdiffCol=td_num, #column index with time difference in seconds
                         DepthCutOff=1, #depth that dives happen below (meters)
-                        DiveDepthYes=1.5, #dives need to reach 3 meters to be considered a dive event
+                        DiveDepthYes=1.2, #dives need to reach 1.2 meters to be considered a dive event
                         TimeDiffAllowed_sec=2, #consecutive points need to have a time difference <2 to be in the same event
                         NumLocCut=2) #dives need to contain three points to be considered a dive, could change this to a duration
 

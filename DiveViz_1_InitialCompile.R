@@ -42,7 +42,7 @@ prjt<-prjt[prjt!="USACRBRDO14"]
 
 # Find Project Data Files -------------------------------------------------
 # eventually change to pull in gps only files
-for (i in 2:length(prjt)){
+for (i in 1:length(prjt)){
   
   Files<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"), full.names = TRUE)
   filenames<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"))
@@ -70,7 +70,11 @@ for(k in 1:nrow(sets)){
     dat <- read.csv(Files[j], header=TRUE, nrows = 0,  skipNul=TRUE)
     if(ncol(dat)==1) next
     
-    dat<-dat%>%filter(is.na(depth_m)==FALSE)
+    #moves diving annotations to the datatype column
+    dat$datatype[dat$satcount=="DIVING_SENSOR_OFF"]<-"DIVING_SENSOR_OFF"
+    dat$datatype[dat$satcount=="DIVING_SENSOR_ON"]<-"DIVING_SENSOR__ON"
+    
+    dat<-dat%>%filter(is.na(depth_m)==FALSE | datatype=="NOTE_DIVING") #keeps Diving switch notes
     dat$Rtime<-dat$milliseconds/1000
     
     dat$UTC_time_ms <- strftime(strptime(dat$UTC_time,format="%H:%M:%OS")+(dat$Rtime %% 1),format="%H:%M:%OS2")
@@ -81,7 +85,7 @@ for(k in 1:nrow(sets)){
     if(is.na(deply_sel$DeploymentEndDatetime_UTC)==FALSE) {dat<-dat%>%filter(UTC_timestamp>deply_sel$DeploymentStartDatetime & UTC_timestamp<deply_sel$DeploymentEndDatetime_UTC)}
     if(nrow(dat)==0) next #skips data that was collected after a tag fell off the bird / bird died
     
-    #remove columns not relavent for dive data
+    #remove columns not relevant for dive data
     dat<-dat%>%select(-satcount,-hdop,-Latitude,-Longitude,-MSL_altitude_m,-Reserved,
                       -U_bat_mV, -bat_soc_pct,-solar_I_mA,-speed_km.h,-altimeter_m,-milliseconds,
                       -direction_deg,-UTC_timestamp,-UTC_datetime,-UTC_date,-UTC_time,-UTC_time_ms,-Rtime,

@@ -66,11 +66,10 @@ unique(locs$Project_ID)
 nC<-length(unique(locs$Project_ID))
 
 locs_wgs84<-st_as_sf(locs,coords=c('lon','lat'),remove = F,crs = 4326)
+dt=Sys.Date()
 
 # Square World Map  --------------------------------------------------------------------
 w2hr<-map_data('world')
-dt=Sys.Date()
-
 
 ggplot()+
   geom_polygon(data=w2hr,aes(long,lat,group=group),fill="gray75",color="white",size=0.1)+
