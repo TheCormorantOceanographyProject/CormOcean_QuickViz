@@ -42,7 +42,7 @@ prjt<-prjt[prjt!="USACRBRDO14"]
 
 # Find Project Data Files -------------------------------------------------
 # eventually change to pull in gps only files
-for (i in 11:length(prjt)){
+for (i in 7:length(prjt)){
   
   Files<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"), full.names = TRUE)
   filenames<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"))
@@ -69,12 +69,14 @@ for(k in 1:nrow(sets)){
     
     dat <- read.csv(Files[j], header=TRUE, nrows = 0,  skipNul=TRUE)
     if(ncol(dat)==1) next
-    
-    #moves diving annotations to the datatype column
-    dat$datatype[dat$satcount=="DIVING_SENSOR_OFF"]<-"DIVING_SENSOR_OFF"
-    dat$datatype[dat$satcount=="DIVING_SENSOR_ON"]<-"DIVING_SENSOR__ON"
+    unique(dat$satcount)
+    unique(dat$datatype)
     
     dat<-dat%>%filter(is.na(depth_m)==FALSE | datatype=="NOTE_DIVING") #keeps Diving switch notes
+    #moves diving annotations to the datatype column
+    dat$datatype[dat$satcount=="DIVING_SENSOR_OFF"]<-"DIVING_SENSOR_OFF"
+    dat$datatype[dat$satcount=="DIVING_SENSOR__ON"]<-"DIVING_SENSOR__ON"
+    
     dat$Rtime<-dat$milliseconds/1000
     
     dat$UTC_time_ms <- strftime(strptime(dat$UTC_time,format="%H:%M:%OS")+(dat$Rtime %% 1),format="%H:%M:%OS2")

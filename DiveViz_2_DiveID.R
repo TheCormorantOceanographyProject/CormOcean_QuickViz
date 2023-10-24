@@ -38,8 +38,13 @@ prjt_complete<-prjt_all[!(prjt_all %in% prjt_current)]
 prjt<-prjt_all
 prjt<-prjt[prjt!="USACRBRDO14"]
 
+#NO DIVE NOTES: i =1:6
+#"USACRBRPE19"  "USAMIPE20"    "UAEBUSO20"    "UAESISO20"    "LITCUGR21"    "USAFIBR21" 
+#DIVE NOTES: i =7
+#BAHHASO21, USACRBR22 - possibly started midway through also NOTE_DIVING in datatype - not on and off
+
 # Loop through each project -----------------------------------------------
-for (i in 1:length(prjt)){
+for (i in 10:length(prjt)){
   
 # Find Project Data Files -------------------------------------------------
 Files<-list.files(paste0(usrdir,savedir,"Processed_Dive_Deployment_Data/"), pattern = prjt[i],full.names = TRUE)
@@ -52,12 +57,15 @@ for (k in 1:length(Files)){
 }
 rm(birdy_d)
 
+prjt[i]
+unique(Birds_dpth$datatype)
 
 # identify dives (by individual) ----------------------------------------------------------
 IDS<-unique(Birds_dpth$device_id)
-
+  #191996 too big? (j=7), nope! 11668747 lines processed OK
 for (j in 1:length(IDS)){
   birdy_d<-Birds_dpth%>%filter(device_id==IDS[j])
+  unique(birdy_d$datatype) 
   
   birdy_d$tdiff_sec <-difftime(birdy_d$datetime, lag(birdy_d$datetime, 1),units = "secs")
 
@@ -66,7 +74,7 @@ dt_num <- which(colnames(birdy_d) == "datetime")
 dp_num <- which(colnames(birdy_d) == "depth_m") 
 td_num <- which(colnames(birdy_d) == "tdiff_sec") 
 
-Birds_dpth_MD<-MakeDive(birdy_d,idCol=id_num, #column index with unique ID
+birdy_d_MD<-MakeDive(birdy_d,idCol=id_num, #column index with unique ID
                         dtCol=dt_num, #column index with datetime
                         depthCol=dp_num, #column index with depth
                         tdiffCol=td_num, #column index with time difference in seconds
@@ -81,7 +89,7 @@ birdy_d_MD$datatype<-birdy_d$datatype
 birdy_d_MD$ext_temperature_C<-birdy_d$ext_temperature_C
 birdy_d_MD$conductivity_mS.cm<-birdy_d$conductivity_mS.cm
 
-saveRDS(birdy_d_MD, paste0(usrdir,savedir,"Processed_DiveID_Deployment_Data/",prjt[i],"_",IDS[j],"_DiveOnlyID.rds"))
+saveRDS(birdy_d_MD, paste0(usrdir,savedir,"Processed_DiveID_Deployment_Data/",prjt[i],"_",IDS[j],"_DiveOnlyID_DiveNote.rds"))
 }
 }
 
