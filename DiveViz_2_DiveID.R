@@ -44,7 +44,7 @@ prjt<-prjt[prjt!="USACRBRDO14"]
 #BAHHASO21, USACRBR22 - possibly started midway through also NOTE_DIVING in datatype - not on and off
 
 # Loop through each project -----------------------------------------------
-for (i in 10:length(prjt)){
+for (i in 2:length(prjt)){
   
 # Find Project Data Files -------------------------------------------------
 Files<-list.files(paste0(usrdir,savedir,"Processed_Dive_Deployment_Data/"), pattern = prjt[i],full.names = TRUE)
@@ -67,6 +67,10 @@ for (j in 1:length(IDS)){
   birdy_d<-Birds_dpth%>%filter(device_id==IDS[j])
   unique(birdy_d$datatype) 
   
+  birdy_d_DN<-birdy_d%>%filter(datatype=="DIVING_SENSOR_OFF" | datatype=="DIVING_SENSOR__ON")
+  if(nrow(birdy_d_DN)>0) {DN="YES"}
+  if(nrow(birdy_d_DN)==0) {DN="NO"}
+  
   birdy_d$tdiff_sec <-difftime(birdy_d$datetime, lag(birdy_d$datetime, 1),units = "secs")
 
 id_num <- which(colnames(birdy_d) == "device_id") 
@@ -88,8 +92,9 @@ birdy_d_MD$date<-date(birdy_d$datetime)
 birdy_d_MD$datatype<-birdy_d$datatype
 birdy_d_MD$ext_temperature_C<-birdy_d$ext_temperature_C
 birdy_d_MD$conductivity_mS.cm<-birdy_d$conductivity_mS.cm
+unique(birdy_d_MD$datatype)
 
-saveRDS(birdy_d_MD, paste0(usrdir,savedir,"Processed_DiveID_Deployment_Data/",prjt[i],"_",IDS[j],"_DiveOnlyID_DiveNote.rds"))
+saveRDS(birdy_d_MD, paste0(usrdir,savedir,"Processed_DiveID_Deployment_Data/",prjt[i],"_",IDS[j],"_DiveOnlyID_DiveNote",DN,".rds"))
 }
 }
 
