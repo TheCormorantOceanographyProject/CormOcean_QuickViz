@@ -86,6 +86,7 @@ birdy_d_MD<-MakeDive(birdy_d,idCol=id_num, #column index with unique ID
                         DiveDepthYes=1.2, #dives need to reach 1.2 meters to be considered a dive event
                         TimeDiffAllowed_sec=2, #consecutive points need to have a time difference <2 to be in the same event
                         NumLocCut=2) #dives need to contain three points to be considered a dive, could change this to a duration
+rename(birdy_d_MD,)
 
 #names(Birds_dpth)
 birdy_d_MD$date<-date(birdy_d$datetime)

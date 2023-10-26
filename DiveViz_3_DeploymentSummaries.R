@@ -38,10 +38,6 @@ prjt_complete<-prjt_all[!(prjt_all %in% prjt_current)]
 prjt<-prjt_all
 prjt<-prjt[prjt!="USACRBRDO14"]
 
-#NO DIVE NOTES: i =1:6
-#"USACRBRPE19"  "USAMIPE20"    "UAEBUSO20"    "UAESISO20"    "LITCUGR21"    "USAFIBR21" 
-#DIVE NOTES: i =7
-#BAHHASO21, USACRBR22 - possibly started midway through also NOTE_DIVING in datatype - not on and off
 
 # Loop through each project -----------------------------------------------
 for (i in i:length(prjt)){
@@ -57,7 +53,52 @@ for (i in i:length(prjt)){
   }
   rm(birdy_d)
   
+  names(Birds_dpth)
+  Birds_dpth<-rename(Birds_dpth, "dive_id" = "divedatYN")
   
+  D_sum<-Birds_dpth%>%group_by(ID)%>%
+    summarise(minDt=min(datetime),
+              maxDt=max(datetime),
+              maxDepth=max(depth,na.rm=TRUE),
+              n=n(),
+              uDepth=round(mean(depth,na.rm=TRUE),2),
+              sdDepth=round(sd(depth,na.rm=TRUE),2))%>%
+    mutate(dur=round(maxDt-minDt,2)) 
   
+  daily_sum<-Birds_dpth%>%group_by(ID, date)%>%
+    summarise(minDt=min(datetime),
+              maxDt=max(datetime),
+              maxDepth=max(depth,na.rm=TRUE),
+              nDives=n_distinct(dive_id),
+              uDepth=round(mean(depth,na.rm=TRUE),2),
+              sdDepth=round(sd(depth,na.rm=TRUE),2))
+  
+  dive_sum<-Birds_dpth%>%group_by(ID, date,dive_id)%>%
+    summarise(minDt=min(datetime),
+              maxDt=max(datetime),
+              maxDepth=max(depth,na.rm=TRUE),
+              nDives=n_distinct(dive_id),
+              uDepth=round(mean(depth,na.rm=TRUE),2),
+              sdDepth=round(sd(depth,na.rm=TRUE),2))
+  
+  dt<-Sys.Date()
+  ggplot()+
+    geom_point(data=daily_sum, aes(y=nDives,x=date,group=ID, color=as.factor(ID)), size=0.05)+
+    labs(title=prjt[i])+
+    ylab("")+
+    theme(legend.title=element_blank())+
+    guides(colour = guide_legend(override.aes = list(size=3)))
+  ggsave(paste0(usrdir,savedir,"PLOTS/Dives_DailySummary/",prjt[i],"_DivesPerDay.png"), dpi=300)
+
+  ggplot()+
+    geom_point(data=daily_sum, aes(y=-uDepth,x=date,group=ID,color=as.factor(ID)), size=0.05)+
+    geom_point(data=daily_sum, aes(y=-maxDepth,x=date, group=ID,color=as.factor(ID)), size=0.05)+
+    labs(title=prjt[i])+
+    ylab("")+
+    theme(legend.title=element_blank())+
+    guides(colour = guide_legend(override.aes = list(size=3))) 
+  ggsave(paste0(usrdir,savedir,"PLOTS/Dives_DailySummary/",prjt[i],"_Mean&MaxDepth.png"), dpi=300)
+  
+
 }
 
