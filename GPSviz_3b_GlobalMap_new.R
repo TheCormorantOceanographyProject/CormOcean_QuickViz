@@ -45,10 +45,7 @@ rm(deploy_matrix)
 # Pulls in saved data and plots
 
 prjt<-prjt[prjt!="USACRBRDO14"]
-prjt<-prjt[prjt!="LITCUGR23"] #data missing
-prjt<-prjt[prjt!="SOUDIAP23"] #data missing
-prjt<-prjt[prjt!="NZEHGSP923"] #data missing
-prjt<-prjt[prjt!="AUSNIBF23"] #data missing
+prjt<-prjt[prjt!="SAUJUSO23"] #data missing
 
 # compile tags a minute or two
 locs<-NULL

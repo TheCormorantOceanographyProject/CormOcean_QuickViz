@@ -45,7 +45,7 @@ prjt<-prjt[prjt!="USACRBRDO14"] #removes non-Ornitela Projects
 
 # Find Project Data Files -------------------------------------------------
 # eventually change to pull in gps only files
-for (i in 1:length(prjt)){
+for (i in 22:length(prjt)){
   
   Files<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"), full.names = TRUE)
   filenames<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"))
@@ -122,7 +122,7 @@ locs<- locs %>% group_by(device_id)%>%
 locs<-locs%>%group_by(device_id,gpsDiveburstID)%>%
   mutate(gpsNum=row_number())
 
-archive_dat<-readRDS(paste0(usrdir,savedir,"Processed_GPS_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
+#archive_dat<-readRDS(paste0(usrdir,savedir,"Processed_GPS_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
 
 if(nrow(archive_dat)==nrow(locs)) next #only saves new data if the files are not the same
 if(nrow(archive_dat) > nrow(locs)) next #only saves new data if there are more new rows
