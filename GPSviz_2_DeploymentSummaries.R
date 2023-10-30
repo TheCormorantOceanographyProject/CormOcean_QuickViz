@@ -26,6 +26,11 @@ dm<-deploy_matrix%>%select(Bird_ID,Capture_Site,TagSerialNumber,Project_ID,Deplo
 dm$DeployEnd<-1 #1 is still Tx
 dm$DeployEnd[is.na(dm$DeploymentEndDatetime_UTC)==FALSE]<-0 #0 is finished
 
+(dm<-dm%>%group_by(Project_ID,TagSerialNumber)%>%filter(TagManufacture=="Ornitela")%>%
+    mutate(dm_dur=round(difftime(DeploymentEndDatetime_UTC, DeploymentStartDatetime, units="days")), 
+           dm_durD=as.numeric(dm_dur)))
+
+
 #all project names
 prjt<-unique(deploy_matrix$Project_ID)
 rm(deploy_matrix)
@@ -48,7 +53,7 @@ for (i in 1:length(prjt)){
               nGPS=n())%>%
     mutate(dur=round(difftime(maxDt, minDt, units="days")), 
            durD=as.numeric(dur)))
-  iS<-left_join(iS,dm_pjt%>%select(-Project_ID),by=c("device_id"="TagSerialNumber"))
+  iS<-left_join(iS,dm_pjt%>%ungroup()%>%select(-Project_ID),by=c("device_id"="TagSerialNumber"))
   
   (pS<-iS%>%group_by(Project_ID)%>%
     summarise(nBirds=n_distinct(device_id),
@@ -68,5 +73,31 @@ for (i in 1:length(prjt)){
 
 projSUM<-left_join(projSUM,prj_info,by="Project_ID")
 
+
+# Deployment Matrix Cross Check -------------------------------------------
+
+head(dm)
+head(indiSUM)
+head(projSUM)
+
+
+(dm<-dm%>%group_by(Project_ID,TagSerialNumber)%>%filter(TagManufacture=="Ornitela")%>%
+    mutate(dm_dur=round(difftime(DeploymentEndDatetime_UTC, DeploymentStartDatetime, units="days")), 
+           dm_durD=as.numeric(dm_dur)))
+
+(dmS<-dm%>%group_by(Project_ID)%>%filter(TagManufacture=="Ornitela")%>%
+    summarise(dm_nBirds=n_distinct(TagSerialNumber),
+              year=year(min(DeploymentStartDatetime, na.rm=TRUE)),
+              dm_minDt=date(min(DeploymentStartDatetime, na.rm=TRUE)),
+              dm_maxDt=date(max(DeploymentEndDatetime_UTC,na.rm=TRUE)),
+              dm_uDur=round(mean(dm_durD, na.rm=TRUE)),
+              dm_minDur=min(dm_durD),
+              dm_maxDur=max(dm_durD),
+              dm_DayTotal=sum(dm_durD),
+              dm_Tx=sum(DeployEnd)))
+
+indiSUM<-left_join(indiSUM,dm)
 write.csv(indiSUM, paste0(usrdir,savedir,"GPSdata_individualbirdSummary.csv"))
 write.csv(projSUM, paste0(usrdir,savedir,"GPSdata_ProjectSummary.csv"))
+
+

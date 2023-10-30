@@ -94,6 +94,7 @@ for(k in 1:nrow(sets)){
                       -acc_x,-acc_y,-acc_z,-mag_x,-mag_y,-mag_z,-int_temperature_C)
     Birds_dpth<-rbind(Birds_dpth,dat)
   }
+  
   saveRDS(Birds_dpth, paste0(usrdir,savedir,"Processed_Dive_Deployment_Data/",prjt[i],"_file_",k,"_DiveOnly.rds"))
   
   #if(nrow(Birds_dpth)==0) next
