@@ -17,21 +17,22 @@ library(argosfilter)#forward-backward speed filter for GPS data
 #DATA: FTP data from Ornitela
 
 if(Sys.info()[7]=="rachaelorben") {
-  datadir<-'/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/data/ornitela_ftp_data/'
-  savedir<-'/Users/rachaelorben/Library/CloudStorage/Box-Box//DASHCAMS/Analysis/realtime_CTD_ATNtoGTS/profiles/'
-  deplymatrix<-'/Users/rachaelorben/Library/CloudStorage/Box-Box//DASHCAMS/data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
+  dir<-'/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/'
+  datadir<-'/data/ornitela_ftp_data/'
+  savedir<-'/Analysis/realtime_CTD_ATNtoGTS/profiles/'
+  deplymatrix<-'/data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
   source('/Users/rachaelorben/git_repos/CormOcean/MakeDive.R')
 }
 
 op=options(digits.secs=3) # option for decimals in date time variables
 
 # Find file names with data within last 10 days-------------------------------------------
-my_files <- fileSnapshot(path=datadir)
+my_files <- fileSnapshot(path=paste0(dir,datadir))
 Files1<-rownames(my_files$info[1])[which(my_files$info[1] < 309)] #selects files with >309 bytes (1 header row)
 
 now<-Sys.time()
 tz_str<-Sys.timezone() #adds in system timezone
-CUT<-86400*3 #three days might make code managable to run?
+CUT<-86400 #three days might make code managable to run?
 tcut<-now-CUT #24hr in seconds*3
 dates<-my_files$info[5]
 dates$datetime<-ymd_hms(dates$ctime,tz = tz_str)
@@ -40,11 +41,11 @@ IDx<-which(dates$datetime>tcut)
 Files2<-rownames(my_files$info[5])[IDx]#removes all files not written in last 6hr
 Files<-Files2[Files2 %in% Files1 == FALSE] #I think this should remove empty files written within last 6hr
 
-# Cycles through data files to find data written in last 10 days -------------
+# Cycles through data files to find data written in last days -------------
 sel_files<-NULL
 for (i in 1:length(Files)){
-  nL <- countLines(paste0(datadir,Files[i]))
-  dfh <- read.csv(paste0(datadir,Files[i]), header=TRUE, nrows = 0,  skipNul=TRUE)
+  nL <- countLines(paste0(dir,datadir,Files[i]))
+  dfh <- read.csv(paste0(dir,datadir,Files[i]), header=TRUE, nrows = 0,  skipNul=TRUE)
   df<-dfh[nL-1,]
   #df <- read.csv(paste0(datadir,Files[i]), header=FALSE, skip=nL-1)
   names(df)<-names(dfh)
@@ -58,7 +59,7 @@ for (i in 1:length(Files)){
 sel_files_IDs<-as.numeric(sapply(strsplit(sel_files, split='_', fixed=TRUE), function(x) (x[1])))
 
 #  Pulls in deployment matrix ---------------------------------------------
-deploy_matrix<-read.csv(deplymatrix)
+deploy_matrix<-read.csv(paste0(dir,deplymatrix))
 deploy_matrix$DeploymentStartDatetime<-mdy_hm(deploy_matrix$DeploymentStartDatetime)-(deploy_matrix$UTC_offset_deploy*60*60)
 deploy_matrix$DeploymentEndDatetime_UTC<-mdy_hm(deploy_matrix$DeploymentEndDatetime_UTC)
 deploy_matrix<-deploy_matrix%>%select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC)%>%
@@ -81,7 +82,7 @@ for (i in 1:length(sel_files_dply)){
   if(nrow(deply_sel)==0) next #if the tag isn't in the deployment matrix is will be skipped - important for skipping testing tags etc. 
   
   deply_sel<-deply_sel[n,] #picks the most recent deployment of that tag
-  dat<-read.csv(file = paste0(datadir,sel_files_dply[i]),sep = ",") #could switch to fread to be quicker...
+  dat<-read.csv(file = paste0(dir,datadir,sel_files_dply[i]),sep = ",") #could switch to fread to be quicker...
   
   dat$Project_ID<-deply_sel$Project_ID
   dat$DeployEndShort<-deply_sel$Deployment_End_Short
@@ -97,6 +98,12 @@ for (i in 1:length(sel_files_dply)){
   Birds<-rbind(Birds,dat_sel)
 }
 names(Birds)
+
+
+# Filters for new data since the previous transmission --------------------
+#lastprof_Tx<-read.csv(lastprof,"/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/Analysis/RealTime_Profiles/LastProfile.csv")
+
+
 
 #finds birds with dive & temperature data: filter(depth_m>0)
 (birdsWdives<-Birds%>%group_by(device_id)%>%
@@ -243,12 +250,14 @@ profs<-rename(profs,profile=DiveID)
 profs<-rename(profs,temperature=ext_temperature_C)
 profs$ptt<-profs$platform_id
 
+unique(profs$platform_id)
 # GPS clean ---------------------------------------------------------------
 #add slower sp. filter for penguins
 
 gps<-Birds%>%
   filter(!is.na(lat))%>% #removes NA
   filter(lat!=0 & lon!=0) #removes (0,0)
+
 
 gps$tdiff_sec <-round(difftime(gps$datetime, lag(gps$datetime, 1),units = "secs"),2)
 
@@ -323,10 +332,10 @@ head(profs_gps)
 #left_join(profs,profs_gps,)
 
 
-# trim to time limit (*new* profiles only) --------------------------------
-
-
 # cross reference previously transmitted profiles -------------------------
+lastprof<-profs_gps%>%group_by(platform_id)%>%
+  summarise(maxDt=max(datetime))
 
+write.csv(lastprof,"/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/Analysis/RealTime_Profiles/LastProfile.csv")
 
     

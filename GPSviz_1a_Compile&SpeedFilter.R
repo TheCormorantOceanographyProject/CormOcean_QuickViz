@@ -31,7 +31,7 @@ prjt_all<-unique(dm$Project_ID)
 
 #projects with tags currently deployed
 tags_current<-dm%>%filter(is.na(DeploymentEndDatetime_UTC))
-prjt_current<-unique(prjt_current$Project_ID)
+prjt_current<-unique(tags_current$Project_ID)
 
 #projects with all end dates complete
 prjt_complete<-prjt_all[!(prjt_all %in% prjt_current)]
@@ -39,13 +39,13 @@ prjt_complete<-prjt_all[!(prjt_all %in% prjt_current)]
 #projects to process: change as needed
 prjt<-prjt_current
 #prjt<-prjt_all
-#prjt<-prjt[prjt!="USACRBRDO14"]
+prjt<-prjt[prjt!="USACRBRDO14"] #removes non-Ornitela Projects
 
 # Loop through each project -----------------------------------------------
 
 # Find Project Data Files -------------------------------------------------
 # eventually change to pull in gps only files
-for (i in 27:length(prjt)){
+for (i in 22:length(prjt)){
   
   Files<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"), full.names = TRUE)
   filenames<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"))
@@ -122,7 +122,11 @@ locs<- locs %>% group_by(device_id)%>%
 locs<-locs%>%group_by(device_id,gpsDiveburstID)%>%
   mutate(gpsNum=row_number())
 
-head(locs)
-saveRDS(locs, paste0(usrdir,savedir,"Processed_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
+#archive_dat<-readRDS(paste0(usrdir,savedir,"Processed_GPS_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
+
+if(nrow(archive_dat)==nrow(locs)) next #only saves new data if the files are not the same
+if(nrow(archive_dat) > nrow(locs)) next #only saves new data if there are more new rows
+
+saveRDS(locs, paste0(usrdir,savedir,"Processed_GPS_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
 
 }
