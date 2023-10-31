@@ -75,7 +75,7 @@ projSUM<-left_join(projSUM,prj_info,by="Project_ID")
 
 
 # Deployment Matrix Cross Check -------------------------------------------
-
+#not finished???
 head(dm)
 head(indiSUM)
 head(projSUM)
