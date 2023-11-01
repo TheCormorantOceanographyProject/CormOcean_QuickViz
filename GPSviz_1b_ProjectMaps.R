@@ -18,7 +18,13 @@ if(Sys.info()[7]=="rachaelorben") {
   datadir<-'/data/ornitela_for_ATN/'
   savedir<-'Analysis/DataViz/'
   deplymatrix<-'/data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
-  source('/Users/rachaelorben/git_repos/CormOcean/MakeDive.R')
+}
+
+if(Sys.info()[7]=="alexa") {
+  usrdir<-"/Users/alexa/Box Sync/DASHCAMS/"
+  datadir<-'data/ornitela_for_ATN/'
+  savedir<'-Analysis/DataViz/'
+  deplymatrix<-'data/Field Data/Draft_Deployment_Field_Data_single line.csv'
 }
 
 #  Deployment matrix ---------------------------------------------

@@ -13,18 +13,20 @@ wrap360 = function(lon) {
   return(lon360)
 }
 
+savedir<-'Analysis/DataViz/'
+deplymatrix<-'data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
+
 if(Sys.info()[7]=="rachaelorben") {
   usrdir<-'/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/'
-  savedir<-'Analysis/DataViz/'
-  deplymatrix<-'data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
-  #source('/Users/rachaelorben/git_repos/CormOcean/MakeDive.R')
 }
+
+if(Sys.info()[7]=="alexa") {
+  usrdir<-"/Users/alexa/Box Sync/DASHCAMS/"
+}
+
 
 if(Sys.info()[7]=="Jessica") { 
   usrdir<-'/Users/jessica/Library/CloudStorage/Box-Box/DASHCAMS/'
-  savedir<-'Analysis/DataViz/'
-  deplymatrix<-'data/Field Data/DASHCAMS_Deployment_Field_Data.csv'  
-  #source('/Users/jessica/git_repos/CormOcean/MakeDive.R')
 }
 
 # Project info ------------------------------------------------------------
@@ -47,7 +49,7 @@ rm(deploy_matrix)
 prjt<-prjt[prjt!="USACRBRDO14"]
 prjt<-prjt[prjt!="SAUJUSO23"] #data missing
 
-# compile tags a minute or two
+# compile tag data - takes a minute or so
 locs<-NULL
 for (i in 1:length(prjt)){
   locs1<-readRDS(paste0(usrdir,savedir,"Processed_GPS_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
@@ -207,6 +209,60 @@ ggplot() +
   theme(legend.title=element_blank())+
   guides(colour = guide_legend(override.aes = list(size=3)))
 ggsave(paste0(usrdir,savedir,"WorldCormorants_Species_RobertsonPrj_",dt,".png"), dpi=300,width=12, height=5)
+
+
+
+# Federal Fiscal Year (Oct 22- Sept 23): Robertson projection (natural earth version) ---------------------------------------------------
+
+robinson <- "+proj=robin +over"
+
+countries <- ne_countries(scale = "medium", returnclass = "sf")
+class(countries)
+
+# create a bounding box for the robinson projection
+# we'll use this as "trim" to remove jagged edges at
+# end of the map (due to the curved nature of the
+# robinson projection)
+bb <- sf::st_union(sf::st_make_grid(
+  st_bbox(c(xmin = -180,
+            xmax = 180,
+            ymax = 90,
+            ymin = -90), crs = st_crs(4326)),
+  n = 100))
+bb_robinson <- st_transform(bb, as.character(robinson))
+
+# transform the coastline to robinson
+countries_robinson <- st_transform(countries, robinson)
+locs_robinson<-st_transform(locs_wgs84, robinson)
+locs_robinson_ft<-locs_robinson%>%filter(datetime>"2022-09-30 00:00" & datetime<"2023-10-01 00:00")
+locs_robinson_ft%>%filter(Project_ID=="USACRBRPE19")
+
+nS<-length(unique(locs_robinson_ft$Project_ID))
+
+ggplot() +
+  geom_sf(data=countries_robinson,
+          colour='grey75',
+          linetype='solid',
+          fill= 'grey40',
+          size=0.3) +
+  geom_sf(data=bb_robinson,
+          colour='black',
+          linetype='solid',
+          fill = NA,
+          size=0.7) +
+  geom_sf(data = locs_robinson_ft, aes(color=Project_ID), size=.5)+
+  #scale_color_manual(values=met.brewer("Johnson", 25))+
+  scale_color_manual(values=met.brewer("Tam", nS))+
+  #xlab("Longitude")+
+  #ylab("Latitude")+
+  labs(
+    title = "Cormorant Oceanography Project",
+    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (Oct 2022 -Sept 2023)",
+    caption = "Data: Cormorant Oceanography Project") +
+  theme_bw()+
+  theme(legend.title=element_blank())+
+  guides(colour = guide_legend(override.aes = list(size=3)))
+ggsave(paste0(usrdir,savedir,"WorldCormorants_FY2223_",dt,".png"), dpi=300,width=12, height=5)
 
 
 
