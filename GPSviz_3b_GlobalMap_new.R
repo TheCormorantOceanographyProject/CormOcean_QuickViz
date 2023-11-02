@@ -60,6 +60,14 @@ for (i in 1:length(prjt)){
 
 locs<-left_join(locs,prj_info,by="Project_ID")
 
+#fixes species in 2019 BRAC/PECO deployment
+locs$Species[locs$Species=="PECO & BRAC"]<-"BRAC"
+locs$Species_Long[locs$Species_Long=="Pelagic Cormorant & Brandt's Cormorant"]<-"Brandt's Cormorant"
+locs$Species[locs$device_id==192761 & locs$Project_ID=="USACRBRPE19"]<-"PECO"
+locs$Species_Long[locs$device_id==192761 & locs$Project_ID=="USACRBRPE19"]<-"Pelagic Cormorant"
+locs$Species[locs$device_id==192760 & locs$Project_ID=="USACRBRPE19"]<-"PECO"
+locs$Species_Long[locs$device_id==192760 & locs$Project_ID=="USACRBRPE19"]<-"Pelagic Cormorant"
+
 unique(locs$Project_ID)
 nC<-length(unique(locs$Project_ID))
 
@@ -70,7 +78,7 @@ dt=Sys.Date()
 w2hr<-map_data('world')
 
 ggplot()+
-  geom_polygon(data=w2hr,aes(long,lat,group=group),fill="gray75",color="white",size=0.1)+
+  geom_polygon(data=w2hr,aes(long,lat,group=group),fill="gray75",color="white",linewidth=0.1)+
   geom_sf(data = locs_wgs84, aes(color=Project_ID), size=.3)+
   #scale_color_manual(values=met.brewer("Johnson", nC))+
   scale_color_manual(values=met.brewer("Tam", nC))+
