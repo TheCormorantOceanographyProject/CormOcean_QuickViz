@@ -191,7 +191,7 @@ bb_robinson <- st_transform(bb, as.character(robinson))
 countries_robinson <- st_transform(countries, robinson)
 locs_robinson<-st_transform(locs_wgs84, robinson)
 
-nS<-length(unique(locs$Speces4))
+nS<-length(unique(locs$Species))
 
 ggplot() +
   geom_sf(data=countries_robinson,
