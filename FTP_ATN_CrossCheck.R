@@ -4,6 +4,7 @@ library(data.table) #rename
 library(stringr)
 library(R.utils)
 library(tidyr)
+library(ggplot2)
 
 if(Sys.info()[7]=="rachaelorben") {
   usrdir<-"/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/"
@@ -201,4 +202,34 @@ for (i in 1:length(prjtA)){
 # Compare FTP & ATN coverage by day & hour --------------------------------
 
 head(ATN_datsum_trim)
+names(ATN_datsum_trim)<-c("device_id","date","hour","ATNn","ATN_File","Project_ID")
 head(FTP)
+names(FTP)
+names(FTP)<-c("device_id","date","hour","FTPn","FTP_File","Project_ID")
+
+ftp_atn<-left_join(FTP,ATN_datsum_trim,by=c("device_id","date","hour","Project_ID"))
+
+missing<-ftp_atn%>%filter(is.na(ATN_File)==TRUE)
+head(missing)
+missing_dt<-missing%>%group_by(Project_ID,device_id, date)%>%
+  summarise(missing_n=sum(FTPn))
+head(missing_dt)
+missing_dt$ATN_file_to_write<-paste0(missing_dt$device_id,"_",year(missing_dt$date),"_",month(missing_dt$date),".csv")
+head(missing_dt)
+missing_dt$year<-year(missing_dt$date)
+missing_dt$month<-month(missing_dt$date)
+
+missing_dt_month<-missing_dt%>%group_by(Project_ID,device_id,ATN_file_to_write,year,month)%>%select(-date)%>%summarise()
+write.csv(missing_dt_month, paste0(usrdir,savedir,"Incomplete_ATNdataFiles_",dt,".csv"))
+
+dt<-Sys.Date()
+quartz(width=12,height=8)
+ggplot()+
+  geom_point(data=missing_dt, aes(y=as.factor(device_id),x=date, color=log(missing_n)), size=0.1)+
+  labs(title=paste("Incomplete Data:", dt))+
+  scale_x_date(labels = date_format("%m-%Y"), )+
+  ylab("")+
+  theme(axis.text.x = element_text(angle = 15, vjust = 1, hjust=1, size=7),
+        axis.text.y = element_text(size=5))+
+  facet_wrap(~Project_ID, scales="free")
+ggsave(paste0(usrdir,savedir,"Incomplete_ATNdata_",dt,".png"), dpi=300)
