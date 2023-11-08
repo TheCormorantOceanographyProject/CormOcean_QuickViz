@@ -92,7 +92,7 @@ ggplot()+
 ggsave(paste0(usrdir,savedir,"WorldCormorants_",dt,".png"), dpi=300,width=12, height=5)
 
 
-# PROJECTS: Robertson projection (natural earth version) ---------------------------------------------------
+# Projection objects ------------------------------------------------------
 
 robinson <- "+proj=robin +over"
 
@@ -113,8 +113,11 @@ bb_robinson <- st_transform(bb, as.character(robinson))
 
 # transform the coastline to robinson
 countries_robinson <- st_transform(countries, robinson)
+
+# transform data to robinson
 locs_robinson<-st_transform(locs_wgs84, robinson)
 
+# PROJECTS: Robertson projection (natural earth version) ---------------------------------------------------
 
 ggplot() +
   geom_sf(data=countries_robinson,
@@ -170,27 +173,6 @@ ggsave(paste0(usrdir,savedir,"WorldCormorants_Projects_by_Years_RobertsonPrj_",d
 
 # SPECIES: Robertson projection (natural earth version) ---------------------------------------------------
 
-robinson <- "+proj=robin +over"
-
-countries <- ne_countries(scale = "medium", returnclass = "sf")
-class(countries)
-
-# create a bounding box for the robinson projection
-# we'll use this as "trim" to remove jagged edges at
-# end of the map (due to the curved nature of the
-# robinson projection)
-bb <- sf::st_union(sf::st_make_grid(
-  st_bbox(c(xmin = -180,
-            xmax = 180,
-            ymax = 90,
-            ymin = -90), crs = st_crs(4326)),
-  n = 100))
-bb_robinson <- st_transform(bb, as.character(robinson))
-
-# transform the coastline to robinson
-countries_robinson <- st_transform(countries, robinson)
-locs_robinson<-st_transform(locs_wgs84, robinson)
-
 nS<-length(unique(locs$Species))
 
 ggplot() +
@@ -220,27 +202,6 @@ ggsave(paste0(usrdir,savedir,"WorldCormorants_Species_RobertsonPrj_",dt,".png"),
 
 
 # COUNTRIES: Robertson projection (natural earth version) ---------------------------------------------------
-
-robinson <- "+proj=robin +over"
-
-countries <- ne_countries(scale = "medium", returnclass = "sf")
-class(countries)
-
-# create a bounding box for the robinson projection
-# we'll use this as "trim" to remove jagged edges at
-# end of the map (due to the curved nature of the
-# robinson projection)
-bb <- sf::st_union(sf::st_make_grid(
-  st_bbox(c(xmin = -180,
-            xmax = 180,
-            ymax = 90,
-            ymin = -90), crs = st_crs(4326)),
-  n = 100))
-bb_robinson <- st_transform(bb, as.character(robinson))
-
-# transform the coastline to robinson
-countries_robinson <- st_transform(countries, robinson)
-locs_robinson<-st_transform(locs_wgs84, robinson)
 
 nS<-length(unique(locs$Country))
 
@@ -273,24 +234,7 @@ ggsave(paste0(usrdir,savedir,"WorldCormorants_byCountry_RobertsonPrj_",dt,".png"
 
 # Federal Fiscal Year (Oct 22- Sept 23) - Project: Robertson projection (natural earth version) ---------------------------------------------------
 
-robinson <- "+proj=robin +over"
-
-countries <- ne_countries(scale = "medium", returnclass = "sf")
-class(countries)
-
-# create a bounding box for the robinson projection
-# we'll use this as "trim" to remove jagged edges at
-# end of the map (due to the curved nature of the
-# robinson projection)
-bb <- sf::st_union(sf::st_make_grid(
-  st_bbox(c(xmin = -180,
-            xmax = 180,
-            ymax = 90,
-            ymin = -90), crs = st_crs(4326)),
-  n = 100))
-bb_robinson <- st_transform(bb, as.character(robinson))
-
-# transform the coastline to robinson
+# transform the data to robinson
 countries_robinson <- st_transform(countries, robinson)
 locs_robinson<-st_transform(locs_wgs84, robinson)
 locs_robinson_ft<-locs_robinson%>%filter(datetime>"2022-09-30 00:00" & datetime<"2023-10-01 00:00")
@@ -325,22 +269,6 @@ ggsave(paste0(usrdir,savedir,"WorldCormorants_FY2223_",dt,".png"), dpi=300,width
 
 # FFY (Oct 22- Sept 23) - Countries: Robertson projection (natural earth version) ---------------------------------------------------
 
-robinson <- "+proj=robin +over"
-
-countries <- ne_countries(scale = "medium", returnclass = "sf")
-class(countries)
-
-# create a bounding box for the robinson projection
-# we'll use this as "trim" to remove jagged edges at
-# end of the map (due to the curved nature of the
-# robinson projection)
-bb <- sf::st_union(sf::st_make_grid(
-  st_bbox(c(xmin = -180,
-            xmax = 180,
-            ymax = 90,
-            ymin = -90), crs = st_crs(4326)),
-  n = 100))
-bb_robinson <- st_transform(bb, as.character(robinson))
 
 # transform the coastline to robinson
 countries_robinson <- st_transform(countries, robinson)
