@@ -72,7 +72,7 @@ unique(locs$Project_ID)
 nC<-length(unique(locs$Project_ID))
 
 locs_wgs84<-st_as_sf(locs,coords=c('lon','lat'),remove = F,crs = 4326)
-dt=Sys.Date()
+dt=date(Sys.Date())
 
 # Square World Map  --------------------------------------------------------------------
 w2hr<-map_data('world')
@@ -219,8 +219,59 @@ ggplot() +
 ggsave(paste0(usrdir,savedir,"WorldCormorants_Species_RobertsonPrj_",dt,".png"), dpi=300,width=12, height=5)
 
 
+# COUNTRIES: Robertson projection (natural earth version) ---------------------------------------------------
 
-# Federal Fiscal Year (Oct 22- Sept 23): Robertson projection (natural earth version) ---------------------------------------------------
+robinson <- "+proj=robin +over"
+
+countries <- ne_countries(scale = "medium", returnclass = "sf")
+class(countries)
+
+# create a bounding box for the robinson projection
+# we'll use this as "trim" to remove jagged edges at
+# end of the map (due to the curved nature of the
+# robinson projection)
+bb <- sf::st_union(sf::st_make_grid(
+  st_bbox(c(xmin = -180,
+            xmax = 180,
+            ymax = 90,
+            ymin = -90), crs = st_crs(4326)),
+  n = 100))
+bb_robinson <- st_transform(bb, as.character(robinson))
+
+# transform the coastline to robinson
+countries_robinson <- st_transform(countries, robinson)
+locs_robinson<-st_transform(locs_wgs84, robinson)
+
+nS<-length(unique(locs$Country))
+
+ggplot() +
+  geom_sf(data=countries_robinson,
+          colour='grey75',
+          linetype='solid',
+          fill= 'grey40',
+          size=0.3) +
+  geom_sf(data=bb_robinson,
+          colour='black',
+          linetype='solid',
+          fill = NA,
+          size=0.7) +
+  geom_sf(data = locs_robinson, aes(color=Country), size=.5)+
+  #scale_color_manual(values=met.brewer("Johnson", 25))+
+  scale_color_manual(values=met.brewer("Tam", nS))+
+  #xlab("Longitude")+
+  #ylab("Latitude")+
+  labs(
+    title = "Cormorant Oceanography Project",
+    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (2019-2023)",
+    caption = "Data: Cormorant Oceanography Project") +
+  theme_bw()+
+  theme(legend.title=element_blank())+
+  guides(colour = guide_legend(override.aes = list(size=3)))
+ggsave(paste0(usrdir,savedir,"WorldCormorants_byCountry_RobertsonPrj_",dt,".png"), dpi=300,width=12, height=5)
+
+
+
+# Federal Fiscal Year (Oct 22- Sept 23) - Project: Robertson projection (natural earth version) ---------------------------------------------------
 
 robinson <- "+proj=robin +over"
 
@@ -271,6 +322,60 @@ ggplot() +
   theme(legend.title=element_blank())+
   guides(colour = guide_legend(override.aes = list(size=3)))
 ggsave(paste0(usrdir,savedir,"WorldCormorants_FY2223_",dt,".png"), dpi=300,width=12, height=5)
+
+# FFY (Oct 22- Sept 23) - Countries: Robertson projection (natural earth version) ---------------------------------------------------
+
+robinson <- "+proj=robin +over"
+
+countries <- ne_countries(scale = "medium", returnclass = "sf")
+class(countries)
+
+# create a bounding box for the robinson projection
+# we'll use this as "trim" to remove jagged edges at
+# end of the map (due to the curved nature of the
+# robinson projection)
+bb <- sf::st_union(sf::st_make_grid(
+  st_bbox(c(xmin = -180,
+            xmax = 180,
+            ymax = 90,
+            ymin = -90), crs = st_crs(4326)),
+  n = 100))
+bb_robinson <- st_transform(bb, as.character(robinson))
+
+# transform the coastline to robinson
+countries_robinson <- st_transform(countries, robinson)
+locs_robinson<-st_transform(locs_wgs84, robinson)
+locs_robinson_ft<-locs_robinson%>%filter(datetime>"2022-09-30 00:00" & datetime<"2023-10-01 00:00")
+locs_robinson_ft%>%filter(Project_ID=="USACRBRPE19")
+
+nS<-length(unique(locs_robinson_ft$Project_ID))
+
+ggplot() +
+  geom_sf(data=countries_robinson,
+          colour='grey75',
+          linetype='solid',
+          fill= 'grey40',
+          size=0.3) +
+  geom_sf(data=bb_robinson,
+          colour='black',
+          linetype='solid',
+          fill = NA,
+          size=0.7) +
+  geom_sf(data = locs_robinson_ft, aes(color=Country), size=.5)+
+  #scale_color_manual(values=met.brewer("Johnson", 25))+
+  scale_color_manual(values=met.brewer("Tam", nS))+
+  #xlab("Longitude")+
+  #ylab("Latitude")+
+  labs(
+    title = "Cormorant Oceanography Project",
+    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (Oct 2022 -Sept 2023)",
+    caption = "Data: Cormorant Oceanography Project") +
+  theme_bw()+
+  theme(legend.title=element_blank())+
+  guides(colour = guide_legend(override.aes = list(size=3)))
+ggsave(paste0(usrdir,savedir,"WorldCormorants_FY2223_byCountry_",dt,".png"), dpi=300,width=12, height=5)
+
+
 
 
 
