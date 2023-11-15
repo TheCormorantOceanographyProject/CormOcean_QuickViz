@@ -2,12 +2,14 @@ library(data.table) #fread
 library(dplyr)
 library(ggplot2)
 library(lubridate)
+library(sf)
 
 if(Sys.info()[7]=="alexa") {
   usrdir<-"/Users/alexa/Box Sync/DASHCAMS/"
   datadir<-'data/ornitela_for_ATN/'
   savedir<-'Research Workspace/Project Metadata/Bounding Coordinates'
   deplymatrix<-'data/Field Data/Draft_Deployment_Field_Data_single line.csv'
+  source('/Users/alexa/git_repos/CormOcean_QuickViz/MakeDive.R')
 }
 
 #  Deployment matrix ---------------------------------------------
