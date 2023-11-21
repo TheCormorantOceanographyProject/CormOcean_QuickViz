@@ -141,6 +141,11 @@ ggplot()+
   facet_wrap(~device_id, scales="free")
 ggsave(paste0(usrdir,savedir,"PLOTS/",prjt[i],"_",dt,"_ConductivitySensorData_byTagID_timeseries_colDepth_20-30m.png"), dpi=300, width=12, height=8)
 
+ggplot()+
+  geom_point(data=birds%>%filter(depth_m>30 ),aes(x=datetime,y=conductivity_mS.cm, color=depth_m))+
+  scale_color_gradientn(colors = met.brewer("Archambault")) +
+  facet_wrap(~device_id, scales="free")
+ggsave(paste0(usrdir,savedir,"PLOTS/",prjt[i],"_",dt,"_ConductivitySensorData_byTagID_timeseries_colDepth_>30m.png"), dpi=300, width=12, height=8)
 
 
 ggplot()+
