@@ -94,14 +94,14 @@ ggplot()+
              aes(x=datetime,y=conductivity_mS.cm, color=conductivity_mS.cm))+
   scale_color_gradientn(colors = met.brewer("Archambault")) +
   facet_wrap(~device_id, scales="free")
-ggsave(paste0(usrdir,savedir,"PLOTS/",prjt[i],"_",dt,"_ConductivitySensorData_byTagID_timeseries.png"), dpi=300, width=12, height=8)
+ggsave(paste0(usrdir,savedir,"PLOTS/",prjt[i],"_conductivity/",prjt[i],"_",dt,"_ConductivitySensorData_byTagID_timeseries.png"), dpi=300, width=12, height=8)
 
 quartz()
 ggplot()+
   geom_point(data=birdsc,aes(x=datetime,y=ext_temperature_C, color=ext_temperature_C))+
   scale_color_gradientn(colors = met.brewer("Archambault")) +
   facet_wrap(~device_id, scales="free")
-ggsave(paste0(usrdir,savedir,"PLOTS/",prjt[i],"_",dt,"_ConductivitySensorData_byTagID_timeseries_colTemp.png"), dpi=300, width=12, height=8)
+ggsave(paste0(usrdir,savedir,"PLOTS/",prjt[i],"_conductivity/",prjt[i],"_",dt,"_ConductivitySensorData_byTagID_timeseries_colTemp.png"), dpi=300, width=12, height=8)
 
 
 quartz()
@@ -109,46 +109,46 @@ ggplot()+
   geom_point(data=birdsc,aes(x=datetime,y=conductivity_mS.cm, color=ext_temperature_C))+
   scale_color_gradientn(colors = met.brewer("Archambault")) +
   facet_wrap(~device_id, scales="free")
-ggsave(paste0(usrdir,savedir,"PLOTS/",prjt[i],"_",dt,"_ConductivitySensorData_byTagID_timeseries_colTemp.png"), dpi=300, width=12, height=8)
+ggsave(paste0(usrdir,savedir,"PLOTS/",prjt[i],"_conductivity/",prjt[i],"_",dt,"_ConductivitySensorData_byTagID_timeseries_colTemp.png"), dpi=300, width=12, height=8)
 
 ggplot()+
   geom_point(data=birds,aes(x=datetime,y=conductivity_mS.cm, color=depth_m))+
   scale_color_gradientn(colors = met.brewer("Archambault")) +
   facet_wrap(~device_id, scales="free")
-ggsave(paste0(usrdir,savedir,"PLOTS/",prjt[i],"_",dt,"_ConductivitySensorData_byTagID_timeseries_colDepth.png"), dpi=300, width=12, height=8)
+ggsave(paste0(usrdir,savedir,"PLOTS/",prjt[i],"_conductivity/",prjt[i],"_",dt,"_ConductivitySensorData_byTagID_timeseries_colDepth.png"), dpi=300, width=12, height=8)
 
 ggplot()+
   geom_point(data=birds%>%filter(depth_m<5),aes(x=datetime,y=conductivity_mS.cm, color=depth_m))+
   scale_color_gradientn(colors = met.brewer("Archambault")) +
   facet_wrap(~device_id, scales="free")
-ggsave(paste0(usrdir,savedir,"PLOTS/",prjt[i],"_",dt,"_ConductivitySensorData_byTagID_timeseries_colDepth<5.png"), dpi=300, width=12, height=8)
+ggsave(paste0(usrdir,savedir,"PLOTS/",prjt[i],"_conductivity/",prjt[i],"_",dt,"_ConductivitySensorData_byTagID_timeseries_colDepth<5.png"), dpi=300, width=12, height=8)
 
 ggplot()+
   geom_point(data=birds%>%filter(depth_m>5 & depth_m<10),aes(x=datetime,y=conductivity_mS.cm, color=depth_m))+
   scale_color_gradientn(colors = met.brewer("Archambault")) +
   facet_wrap(~device_id, scales="free")
-ggsave(paste0(usrdir,savedir,"PLOTS/",prjt[i],"_",dt,"_ConductivitySensorData_byTagID_timeseries_colDepth_5-10m.png"), dpi=300, width=12, height=8)
+ggsave(paste0(usrdir,savedir,"PLOTS/",prjt[i],"_conductivity/",prjt[i],"_",dt,"_ConductivitySensorData_byTagID_timeseries_colDepth_5-10m.png"), dpi=300, width=12, height=8)
 
 ggplot()+
   geom_point(data=birds%>%filter(depth_m>10 & depth_m<20),aes(x=datetime,y=conductivity_mS.cm, color=depth_m))+
   scale_color_gradientn(colors = met.brewer("Archambault")) +
   facet_wrap(~device_id, scales="free")
-ggsave(paste0(usrdir,savedir,"PLOTS/",prjt[i],"_",dt,"_ConductivitySensorData_byTagID_timeseries_colDepth_10-20m.png"), dpi=300, width=12, height=8)
+ggsave(paste0(usrdir,savedir,"PLOTS/",prjt[i],"_conductivity/",prjt[i],"_",dt,"_ConductivitySensorData_byTagID_timeseries_colDepth_10-20m.png"), dpi=300, width=12, height=8)
 
 ggplot()+
   geom_point(data=birds%>%filter(depth_m>20 & depth_m<30),aes(x=datetime,y=conductivity_mS.cm, color=depth_m))+
   scale_color_gradientn(colors = met.brewer("Archambault")) +
   facet_wrap(~device_id, scales="free")
-ggsave(paste0(usrdir,savedir,"PLOTS/",prjt[i],"_",dt,"_ConductivitySensorData_byTagID_timeseries_colDepth_20-30m.png"), dpi=300, width=12, height=8)
+ggsave(paste0(usrdir,savedir,"PLOTS/",prjt[i],"_conductivity/",prjt[i],"_",dt,"_ConductivitySensorData_byTagID_timeseries_colDepth_20-30m.png"), dpi=300, width=12, height=8)
 
 ggplot()+
   geom_point(data=birds%>%filter(depth_m>30 ),aes(x=datetime,y=conductivity_mS.cm, color=depth_m))+
   scale_color_gradientn(colors = met.brewer("Archambault")) +
   facet_wrap(~device_id, scales="free")
-ggsave(paste0(usrdir,savedir,"PLOTS/",prjt[i],"_",dt,"_ConductivitySensorData_byTagID_timeseries_colDepth_>30m.png"), dpi=300, width=12, height=8)
+ggsave(paste0(usrdir,savedir,"PLOTS/",prjt[i],"_conductivity/",prjt[i],"_",dt,"_ConductivitySensorData_byTagID_timeseries_colDepth_>30m.png"), dpi=300, width=12, height=8)
 
 
 ggplot()+
   geom_histogram(data=birds,aes(y=conductivity_mS.cm))+
   facet_wrap(~device_id, scales="free")
-ggsave(paste0(usrdir,savedir,"PLOTS/",prjt[i],"_",dt,"_ConductivitySensorData_byTagID_histogram.png"), dpi=300, width=12, height=8)
+ggsave(paste0(usrdir,savedir,"PLOTS/",prjt[i],"_conductivity/",prjt[i],"_",dt,"_ConductivitySensorData_byTagID_histogram.png"), dpi=300, width=12, height=8)
