@@ -90,10 +90,10 @@
 
 for (i in 1:length(prjt)){
  pS<-locs_wgs84%>%group_by(Project_ID)%>%
-   summarise(MINLAT = [which.min(lat)],
-             MAXLAT = [which.max(lat)],
-             MINLON = [which.min(lon)],
-             MAXLON = [which.max(lon)])
+   summarise(MINLAT = lat[which.min(lat)],
+             MAXLAT = lat[which.max(lat)],
+             MINLON = lon[which.min(lon)],
+             MAXLON = lon[which.max(lon)])
   
 }
   
