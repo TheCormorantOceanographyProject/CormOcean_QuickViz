@@ -5,6 +5,7 @@ library(stringr)
 library(R.utils)
 library(tidyr)
 library(ggplot2)
+library(scales)
 
 if(Sys.info()[7]=="rachaelorben") {
   usrdir<-"/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/"
@@ -223,10 +224,11 @@ missing_dt_month<-missing_dt%>%group_by(Project_ID,device_id,ATN_file_to_write,y
 write.csv(missing_dt_month, paste0(usrdir,savedir,"Incomplete_ATNdataFiles_",dt,".csv"))
 
 dt<-Sys.Date()
+#removes the most recent (typically incomplete month from the plot)
 quartz(width=12,height=8)
 ggplot()+
-  geom_point(data=missing_dt, aes(y=as.factor(device_id),x=date, color=log(missing_n)), size=0.1)+
-  labs(title=paste("Incomplete Data:", dt))+
+  geom_point(data=missing_dt%>%filter(date<paste0(year(dt),"-",month(dt),"-01")), aes(y=as.factor(device_id),x=date, color=log(missing_n)), size=0.1)+
+  labs(title=paste("Incomplete Data Up To:", paste0(year(dt),"-",month(dt),"-01")))+
   scale_x_date(labels = date_format("%m-%Y"), )+
   ylab("")+
   theme(axis.text.x = element_text(angle = 15, vjust = 1, hjust=1, size=7),
