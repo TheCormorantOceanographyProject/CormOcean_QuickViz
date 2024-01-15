@@ -1,7 +1,7 @@
 library(data.table) #fread
 library(dplyr)
 library(ggplot2)
-
+library(sf)
 
 if(Sys.info()[7]=="rachaelorben") {
   usrdir<-"/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/"
@@ -47,4 +47,5 @@ for (i in 1:length(prjt)){
   extent<-rbind(extent,info)
 
 }
+
 
