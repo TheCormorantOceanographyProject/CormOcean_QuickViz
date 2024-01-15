@@ -60,26 +60,25 @@
 # Min-max lat/long by project
 
 for (i in 1:length(prjt)){
- pS<-locs_wgs84%>%group_by(Project_ID)%>%
-   summarise(MINLAT = lat[which.min(lat)],
-             MAXLAT = lat[which.max(lat)],
-             MINLON = lon[which.min(lon)],
-             MAXLON = lon[which.max(lon)])
+ Bound<-locs_wgs84%>%group_by(Project_ID)%>%
+   summarise(MAXLAT = lat[which.max(lat)],
+             MINLAT = lat[which.min(lat)],
+             MAXLON = lon[which.max(lon)],
+             MINLON = lon[which.min(lon)],)
   
 }
   
- 
-  
-  head(dm)
-  head(pS)
- 
-  (dm<-dm%>%group_by(Project_ID,TagSerialNumber)%>%filter(TagManufacture=="Ornitela")%>%
-      mutate(dm_dur=round(difftime(DeploymentEndDatetime_UTC, DeploymentStartDatetime, units="days")), 
-             dm_durD=as.numeric(dm_dur)))   
-  
-ProjBounds<-ps
+ProjBounds<-Bound %>% st_drop_geometry() # remove the geometry column
+
+ProjBounds2<- ProjBounds %>% rename(
+    North = MAXLAT,
+    South = MINLAT,
+    East = MAXLON,
+    West = MINLON,
+  )
+
+write.csv(ProjBounds2, paste0(usrdir,savedir,"Bounding_Coordinates_by_Project.csv"))
 
 
 
-write.csv(pS, paste0(usrdir,savedir,"Bounding_Coordinates_by_Project.csv"))
      
