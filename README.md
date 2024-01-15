@@ -8,7 +8,7 @@ TagStatus_1wk.R
 This script is run daily by benthos to make quick diagnotic plots of the last week of tag data. 
 
 TagStatus_24hr.R 
-This script has an error and doesn't run. Could be updated to provide a quick summary to compliment 1wk output. 
+This script has an error and doesn't run. Could be updated to compliment 1wk output. 
 
 **Realtime_Profiles**
 realtime_profiles.R Script to make temperature and salinity profiles to send to ATN for output to GTS. 
