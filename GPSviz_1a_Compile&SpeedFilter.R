@@ -19,6 +19,15 @@ if(Sys.info()[7]=="rachaelorben") {
   source('/Users/rachaelorben/git_repos/CormOcean/MakeDive.R')
 }
 
+if(Sys.info()[7]=="alexa") {
+  usrdir<-"/Users/alexa/Box Sync/DASHCAMS/"
+  datadir<-'data/ornitela_for_ATN/'
+  savedir<-'Analysis/DataViz/'
+  #savedir<-'Research Workspace/Project Metadata/Bounding Coordinates'
+  deplymatrix<-'data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
+  source('/Users/alexa/git_repos/CormOcean_QuickViz/MakeDive.R')
+}
+
 #  Deployment matrix ---------------------------------------------
 deploy_matrix<-read.csv(paste0(usrdir,deplymatrix))
 deploy_matrix$DeploymentStartDatetime<-mdy_hm(deploy_matrix$DeploymentStartDatetime)-(deploy_matrix$UTC_offset_deploy*60*60)
