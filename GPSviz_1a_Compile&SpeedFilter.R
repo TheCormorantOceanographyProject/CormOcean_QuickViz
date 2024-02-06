@@ -54,9 +54,10 @@ prjt<-prjt[prjt!="USACRBRDO14"] #removes non-Ornitela Projects
 
 # Find Project Data Files -------------------------------------------------
 # eventually change to pull in gps only files
+#this for loop below does not seem to work for me and will only create files for PERPSJHU23 -Alexa
 for (i in 25:length(prjt)){
   
-  Files<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"), full.names = TRUE)
+  Files<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"), full.names = TRUE) 
   filenames<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"))
   
   if (length(Files)==0) next
