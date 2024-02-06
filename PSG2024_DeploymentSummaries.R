@@ -42,6 +42,7 @@ prjt
 
 # Find Project Data Files -------------------------------------------------
 # eventually change to pull in gps only files
+# I can't seem to get the for loop below to work - Alexa
 for (i in 1:length(prjt)){
   Files<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"), full.names = TRUE)
   filenames<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"))
