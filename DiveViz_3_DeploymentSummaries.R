@@ -38,6 +38,7 @@ prjt_complete<-prjt_all[!(prjt_all %in% prjt_current)]
 prjt<-prjt_all
 prjt<-prjt[prjt!="USACRBRDO14"]
 
+saveRDS(locs,paste0(usrdir,savedir,"AllProjects_GPSonly.rda"))
 
 # Loop through each project -----------------------------------------------
 for (i in i:length(prjt)){
