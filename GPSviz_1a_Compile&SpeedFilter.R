@@ -53,8 +53,7 @@ prjt<-prjt[prjt!="USACRBRDO14"] #removes non-Ornitela Projects
 # Loop through each project -----------------------------------------------
 
 # Find Project Data Files -------------------------------------------------
-# eventually change to pull in gps only files
-#this for loop below does not seem to work for me and will only create files for PERPSJHU23 -Alexa
+
 for (i in 1:length(prjt)){
   
   Files<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"), full.names = TRUE) 
@@ -91,7 +90,7 @@ for (j in 1:length(Files)){
   dat[is.na(dat)==TRUE]<-NA
   dat$Foid<-1:nrow(dat)
   
-  #remove columns not relavent for GPS data
+  #remove columns not relevent for GPS data
   dat<-dat%>%select(-Reserved,-depth_m,-altimeter_m,-conductivity_mS.cm,-ext_temperature_C,-mag_x,-mag_y,-mag_z,-acc_x,-acc_y,-acc_z)%>%
     filter(lat!=0) #removes 0,0 GPS values
   birds<-rbind(birds,dat)
