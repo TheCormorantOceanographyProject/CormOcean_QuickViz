@@ -8,6 +8,7 @@ library(rnaturalearthdata)
 library(sf)
 library(patchwork)
 library(lutz)
+library(adehabitatLT) #masks dplyr select!!!
 
 wrap360 = function(lon) {
   lon360<-ifelse(lon<0,lon+360,lon)
@@ -66,4 +67,36 @@ ggplot()+
   geom_point(data=locs_dailysum, 
             aes(x=Jdate_lc,y=dailyDist_km, group=BirdID, color=Project_ID))+
   facet_wrap(~Species_Long)
+
+
+# do the same thing, but with interpolated data (hr) ----------------------
+
+locs$lon360<-wrap360(locs$lon)
+
+locs_sl<-locs %>% 
+  group_by(BirdID,datetime_lc) %>% 
+  slice(2)
+
+# make ltraj (adehabitat)
+tracks_lt<-adehabitatLT::as.ltraj(xy = cbind(locs_sl$lon360,locs_sl$lat),
+                                  date = locs_sl$datetime_lc,
+                                  id = locs_sl$BirdID,
+                                  burst = locs_sl$BirdID,
+                                  typeII = T,slsp="remove",infolocs = locs_sl,
+                                  proj4string = CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"))
+
+# resample at 60 minutes
+tracks_lt_redis<-adehabitatLT::redisltraj(l = tracks_lt,u = 60,type = "time")
+tracks.60min<-adehabitatLT::ld(tracks_lt_redis) %>% 
+  mutate(device_id=as.character(burst),BirdID=(as.character(id)), datetime_lc = date)
+
+tracks.60min$date_lc<-date(tracks.60min$datetime_lc)
+tracks.60min$Jdate_lc<-yday(tracks.60min$datetime_lc)
+
+locs_dailysum_60<-tracks.60min%>%group_by(device_id,BirdID,date_lc,Jdate_lc)%>%
+  summarize(dailyDist_km=sum(dist, na.rm=TRUE))
+
+ggplot()+
+  geom_point(data=locs_dailysum_60, 
+             aes(x=Jdate_lc,y=dailyDist_km, group=BirdID))
 
