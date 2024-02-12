@@ -84,7 +84,9 @@ ggplot()+
   geom_point(data=longdistDays, 
              aes(x=Jdate_lc,y=dailyDist_km, color=Species_Long))
 
-# do the same thing, but with interpolated data (hr) ----------------------
+saveRDS(locs_dailysum, paste0(usrdir,savedir,"AllProjects_GPSraw_DailyDistT.rda"))
+
+# does the same thing, but with interpolated data (hr): takes forever! ----------------------
 locs$lon360<-wrap360(locs$lon)
 
 # make ltraj (adehabitat)
@@ -102,13 +104,31 @@ tracks.60min<-adehabitatLT::ld(tracks_lt_redis) %>%
   mutate(device=as.character(id),BirdID=(as.character(burst)), datetime_lc = date)
 unique(tracks.60min$BirdID)
 
-tracks.60min$date_lc<-date(tracks.60min$datetime_lc)
-tracks.60min$Jdate_lc<-yday(tracks.60min$datetime_lc)
+saveRDS(tracks.60min, paste0(usrdir,savedir,"AllProjects_GPSinterpolated_DailyDistT.rda"))
 
-locs_dailysum_60<-tracks.60min%>%group_by(device_id,BirdID,date_lc,Jdate_lc)%>%
+remove(tracks_lt_redis)
+
+#can start here once file is made
+tracks.60min<-readRDS(paste0(usrdir,savedir,"AllProjects_GPSinterpolated_DailyDistT.rda"))
+names(tracks.60min)
+
+tracks.60min$date_lc<-date(tracks.60min$date)
+tracks.60min$Jdate_lc<-yday(tracks.60min$date)
+
+locs_dailysum_60<-tracks.60min%>%group_by(device,BirdID,date_lc,Jdate_lc)%>%
   summarize(dailyDist_km=sum(dist, na.rm=TRUE))
+
+locs_dailysum_60$Project_ID <- sapply(strsplit(locs_dailysum_60$BirdID, split='_', fixed=TRUE), function(x) (x[1]))
+
+# Project info ------------------------------------------------------------
+prj_info<-read.csv(paste0(usrdir,"/data/Field Data/Project Titles and IDs.csv"))
+locs_dailysum_60<-left_join(locs_dailysum_60,prj_info,by="Project_ID")
+
+names(locs_dailysum_60)
 
 ggplot()+
   geom_point(data=locs_dailysum_60, 
-             aes(x=Jdate_lc,y=dailyDist_km, group=BirdID))
+             aes(x=Jdate_lc,y=dailyDist_km, group=Species_Long, color=Species_Long))
+
+
 

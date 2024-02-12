@@ -20,7 +20,8 @@ op <- options(digits.secs=3)
 deploy_matrix<-read.csv(paste0(usrdir,deplymatrix))
 deploy_matrix$DeploymentStartDatetime<-mdy_hm(deploy_matrix$DeploymentStartDatetime)-(deploy_matrix$UTC_offset_deploy*60*60)
 deploy_matrix$DeploymentEndDatetime_UTC<-mdy_hm(deploy_matrix$DeploymentEndDatetime_UTC)
-dm<-deploy_matrix%>%select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacture)%>%
+names(deploy_matrix)
+dm<-deploy_matrix%>%dplyr::select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacture)%>%
   filter(is.na(TagSerialNumber)==FALSE)
 
 #all project names
@@ -42,7 +43,7 @@ prjt<-prjt[prjt!="USACRBRDO14"]
 
 # Find Project Data Files -------------------------------------------------
 # eventually change to pull in gps only files
-for (i in 7:length(prjt)){
+for (i in 1:length(prjt)){
   
   Files<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"), full.names = TRUE)
   filenames<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"))
@@ -88,7 +89,7 @@ for(k in 1:nrow(sets)){
     if(nrow(dat)==0) next #skips data that was collected after a tag fell off the bird / bird died
     
     #remove columns not relevant for dive data
-    dat<-dat%>%select(-satcount,-hdop,-Latitude,-Longitude,-MSL_altitude_m,-Reserved,
+    dat<-dat%>%dplyr::select(-satcount,-hdop,-Latitude,-Longitude,-MSL_altitude_m,-Reserved,
                       -U_bat_mV, -bat_soc_pct,-solar_I_mA,-speed_km.h,-altimeter_m,-milliseconds,
                       -direction_deg,-UTC_timestamp,-UTC_datetime,-UTC_date,-UTC_time,-UTC_time_ms,-Rtime,
                       -acc_x,-acc_y,-acc_z,-mag_x,-mag_y,-mag_z,-int_temperature_C)

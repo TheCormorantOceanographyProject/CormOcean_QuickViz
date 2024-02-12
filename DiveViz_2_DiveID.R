@@ -20,7 +20,7 @@ op <- options(digits.secs=3)
 deploy_matrix<-read.csv(paste0(usrdir,deplymatrix))
 deploy_matrix$DeploymentStartDatetime<-mdy_hm(deploy_matrix$DeploymentStartDatetime)-(deploy_matrix$UTC_offset_deploy*60*60)
 deploy_matrix$DeploymentEndDatetime_UTC<-mdy_hm(deploy_matrix$DeploymentEndDatetime_UTC)
-dm<-deploy_matrix%>%select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacture)%>%
+dm<-deploy_matrix%>%dplyr::select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacture)%>%
   filter(is.na(TagSerialNumber)==FALSE)
 
 #all project names
@@ -94,8 +94,9 @@ birdy_d_MD$datatype<-birdy_d$datatype
 birdy_d_MD$ext_temperature_C<-birdy_d$ext_temperature_C
 birdy_d_MD$conductivity_mS.cm<-birdy_d$conductivity_mS.cm
 unique(birdy_d_MD$datatype)
-
-saveRDS(birdy_d_MD, paste0(usrdir,savedir,"Processed_DiveID_Deployment_Data/",prjt[i],"_",IDS[j],"_DiveOnlyID_DiveNote",DN,".rds"))
+birdy_d_MD$Project<-prjt[i]
+  
+saveRDS(birdy_d_MD, paste0(usrdir,savedir,"Processed_DiveID_ByBird//",prjt[i],"_",IDS[j],"_DiveOnlyID_DiveNote",DN,".rds"))
 }
 }
 
