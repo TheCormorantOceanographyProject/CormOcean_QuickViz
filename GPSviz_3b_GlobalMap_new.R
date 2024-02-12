@@ -36,7 +36,7 @@ prj_info<-read.csv(paste0(usrdir,"/data/Field Data/Project Titles and IDs.csv"))
 deploy_matrix<-read.csv(paste0(usrdir,deplymatrix))
 deploy_matrix$DeploymentStartDatetime<-mdy_hm(deploy_matrix$DeploymentStartDatetime)-(deploy_matrix$UTC_offset_deploy*60*60)
 deploy_matrix$DeploymentEndDatetime_UTC<-mdy_hm(deploy_matrix$DeploymentEndDatetime_UTC)
-dm<-deploy_matrix%>%select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacture)%>%
+dm<-deploy_matrix%>%dplyr::select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacture)%>%
   filter(is.na(TagSerialNumber)==FALSE)
 
 #all project names
@@ -53,7 +53,9 @@ locs<-NULL
 for (i in 1:length(prjt)){
   locs1<-readRDS(paste0(usrdir,savedir,"Processed_GPS_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
   names(locs1)
-  locs1<-locs1%>%select(device_id,Project_ID, datetime,lat,lon)%>%ungroup()
+  locs1<-locs1%>%
+    ungroup()%>%
+    dplyr::select(device_id,Project_ID, datetime,lat,lon)
   locs<-rbind(locs,locs1)
 }
 
@@ -69,6 +71,13 @@ locs$Species_Long[locs$device_id==192760 & locs$Project_ID=="USACRBRPE19"]<-"Pel
 
 unique(locs$Project_ID)
 nC<-length(unique(locs$Project_ID))
+
+locs$BirdID<-paste0(locs$Project_ID,"_",locs$device_id)
+dubs<-locs %>% 
+  janitor::get_dupes(BirdID,datetime)
+unique(dubs$BirdID)
+
+saveRDS(locs, paste0(usrdir,savedir,"AllProjects_GPSonly.rda"))
 
 locs_wgs84<-st_as_sf(locs,coords=c('lon','lat'),remove = F,crs = 4326)
 dt=date(Sys.Date())

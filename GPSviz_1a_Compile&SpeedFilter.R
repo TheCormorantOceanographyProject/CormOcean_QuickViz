@@ -32,8 +32,9 @@ if(Sys.info()[7]=="alexa") {
 deploy_matrix<-read.csv(paste0(usrdir,deplymatrix))
 deploy_matrix$DeploymentStartDatetime<-mdy_hm(deploy_matrix$DeploymentStartDatetime)-(deploy_matrix$UTC_offset_deploy*60*60)
 deploy_matrix$DeploymentEndDatetime_UTC<-mdy_hm(deploy_matrix$DeploymentEndDatetime_UTC)
-dm<-deploy_matrix%>%select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacture)%>%
+dm<-deploy_matrix%>%dplyr::select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacture)%>%
   filter(is.na(TagSerialNumber)==FALSE)
+names(deploy_matrix)
 
 #all project names
 prjt_all<-unique(dm$Project_ID)
@@ -46,8 +47,8 @@ prjt_current<-unique(tags_current$Project_ID)
 prjt_complete<-prjt_all[!(prjt_all %in% prjt_current)]
 
 #projects to process: change as needed
-prjt<-prjt_current
-#prjt<-prjt_all
+#prjt<-prjt_current
+prjt<-prjt_all
 prjt<-prjt[prjt!="USACRBRDO14"] #removes non-Ornitela Projects
 
 # Loop through each project -----------------------------------------------
@@ -91,7 +92,7 @@ for (j in 1:length(Files)){
   dat$Foid<-1:nrow(dat)
   
   #remove columns not relevent for GPS data
-  dat<-dat%>%select(-Reserved,-depth_m,-altimeter_m,-conductivity_mS.cm,-ext_temperature_C,-mag_x,-mag_y,-mag_z,-acc_x,-acc_y,-acc_z)%>%
+  dat<-dat%>%dplyr::select(-Reserved,-depth_m,-altimeter_m,-conductivity_mS.cm,-ext_temperature_C,-mag_x,-mag_y,-mag_z,-acc_x,-acc_y,-acc_z)%>%
     filter(lat!=0) #removes 0,0 GPS values
   birds<-rbind(birds,dat)
 }
