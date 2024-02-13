@@ -138,7 +138,7 @@ dive_sum_AllB<-left_join(dive_sum_AllB,prj_info,by="Project_ID")
 
 names(dive_sum_AllB)
 
-#not a useful plot
+#not a useful plot - you want the daily dive summary instead for plotting
 ggplot()+
   geom_point(data=dive_sum_AllB, aes(x=nDives, y=-maxDepth))
 
