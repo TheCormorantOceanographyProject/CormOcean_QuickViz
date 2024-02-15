@@ -14,6 +14,14 @@ if(Sys.info()[7]=="rachaelorben") {
   source('/Users/rachaelorben/git_repos/CormOcean/MakeDive.R')
 }
 
+if(Sys.info()[7]=="alexa") {
+  usrdir<-"/Users/alexa/Box Sync/DASHCAMS/"
+  datadir<-'data/ornitela_for_ATN/'
+  savedir<-'Analysis/DataViz/'
+  deplymatrix<-'data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
+  source('/Users/alexa/git_repos/CormOcean_QuickViz/MakeDive.R')
+}
+
 op <- options(digits.secs=3)
 
 #  Deployment matrix ---------------------------------------------
@@ -42,7 +50,7 @@ prjt<-prjt[prjt!="USACRBRDO14"]
 # Loop through each project -----------------------------------------------
 # you can run project individually by picking an i value i=10 gives you "PERIPGU22_SC" etc. 
 # then just run the code after the initial for statement
-for (i in i:length(prjt)){
+for (i in 1:length(prjt)){
   
   # Find Project Data Files 
   Files<-list.files(paste0(usrdir,savedir,"Processed_DiveID_ByBird/"), pattern = prjt[i],full.names = TRUE)
@@ -54,9 +62,9 @@ for (i in i:length(prjt)){
     Birds_dpth<-rbind(Birds_dpth,birdy_d)
   }
   rm(birdy_d)
-  
-  saveRDS(Birds_dpth, paste0(usrdir,savedir,"Processed_DiveID_ByDeployment/",prjt[i],"_DiveID.rds"))
-}
+}  
+ 
+ saveRDS(Birds_dpth, paste0(usrdir,savedir,"Processed_DiveID_ByDeployment/",prjt[i],"_DiveID.rds"))
 
 
 
