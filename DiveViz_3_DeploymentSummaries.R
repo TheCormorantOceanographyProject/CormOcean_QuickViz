@@ -37,6 +37,7 @@ prjt_complete<-prjt_all[!(prjt_all %in% prjt_current)]
 #prjt<-prjt_current
 prjt<-prjt_all
 prjt<-prjt[prjt!="USACRBRDO14"]
+prjt<-prjt[prjt!="USACRBRPE19"] #I am not sure why this one is missing
 
 
 # Loop through each project -----------------------------------------------
@@ -45,7 +46,7 @@ prjt<-prjt[prjt!="USACRBRDO14"]
 for (i in i:length(prjt)){
   
   # Find Project Data Files 
-  Files<-list.files(paste0(usrdir,savedir,"Processed_DiveID_ByBird/"), pattern = prjt[i],full.names = TRUE)
+  Files<-list.files(paste0(usrdir,savedir,"Processed_DiveID_ByBird/"), pattern = prjt[i], full.names = TRUE)
   filenames<-list.files(paste0(usrdir,savedir,"Processed_DiveID_ByBird/"),pattern = prjt[i])
   
   Birds_dpth<-NULL
