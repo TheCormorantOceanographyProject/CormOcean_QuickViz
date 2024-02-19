@@ -94,14 +94,15 @@ for (k in 1:length(filenames)){
               uDepth=round(mean(depth,na.rm=TRUE),2),
               sdDepth=round(sd(depth,na.rm=TRUE),2))
 
-  dive_sum<-Birds_dpth%>%group_by(Project, ID, date,dive_id)%>% 
-    filter(!is.na(depth))%>% #removes rows with NA values for depth - needs to be switched to days with DiveSensor/ON-OFF events (to do later)
-    summarise(minDt=min(datetime),
-              maxDt=max(datetime),
-              maxDepth=max(depth,na.rm=TRUE),
-              nDives=n_distinct(dive_id),
-              uDepth=round(mean(depth,na.rm=TRUE),2),
-              sdDepth=round(sd(depth,na.rm=TRUE),2))
+  dive_sum<-Birds_dpth%>%group_by(Project, ID, date,dive_id)%>%
+   filter(!is.na(depth))%>% #removes rows with NA values for depth - needs to be switched to days with DiveSensor/ON-OFF events (to do later)
+   summarise(minDt=min(datetime),
+             maxDt=max(datetime),
+             maxDepth=max(depth,na.rm=TRUE),
+             nDives=n_distinct(dive_id),
+             uDepth=round(mean(depth,na.rm=TRUE),2),
+             sdDepth=round(sd(depth,na.rm=TRUE),2))%>%
+    mutate(dive_dur=maxDt-minDt)
   
   #puts each deployment in a master spreadsheet
   D_sum_AllB<-bind_rows(D_sum_AllB, D_sum)
@@ -109,37 +110,70 @@ for (k in 1:length(filenames)){
   dive_sum_AllB<-bind_rows(dive_sum_AllB, dive_sum)
   
   #makes a few deployment specific plots
-  dt<-Sys.Date()
-  ggplot()+
-    geom_point(data=daily_sum, aes(y=nDives,x=date,group=ID, color=as.factor(ID)), size=0.05)+
-    labs(title=prjt[i])+
-    ylab("")+
-    theme(legend.title=element_blank())+
-    guides(colour = guide_legend(override.aes = list(size=3)))
-  ggsave(paste0(usrdir,savedir,"PLOTS/Dives_DailySummary/",prjt[i],"_DivesPerDay.png"), dpi=300)
-
-  ggplot()+
-    geom_point(data=daily_sum, aes(y=-uDepth,x=date,group=ID,color=as.factor(ID)), size=0.05)+
-    geom_point(data=daily_sum, aes(y=-maxDepth,x=date, group=ID,color=as.factor(ID)), size=0.05)+
-    labs(title=prjt[i])+
-    ylab("")+
-    theme(legend.title=element_blank())+
-    guides(colour = guide_legend(override.aes = list(size=3))) 
-  ggsave(paste0(usrdir,savedir,"PLOTS/Dives_DailySummary/",prjt[i],"_Mean&MaxDepth.png"), dpi=300)
-  
+  # dt<-Sys.Date()
+  # ggplot()+
+  #   geom_point(data=daily_sum, aes(y=nDives,x=date,group=ID, color=as.factor(ID)), size=0.05)+
+  #   labs(title=prjt[i])+
+  #   ylab("")+
+  #   theme(legend.title=element_blank())+
+  #   guides(colour = guide_legend(override.aes = list(size=3)))
+  # ggsave(paste0(usrdir,savedir,"PLOTS/Dives_DailySummary/",prjt[i],"_DivesPerDay.png"), dpi=300)
+  # 
+  # ggplot()+
+  #   geom_point(data=daily_sum, aes(y=-uDepth,x=date,group=ID,color=as.factor(ID)), size=0.05)+
+  #   geom_point(data=daily_sum, aes(y=-maxDepth,x=date, group=ID,color=as.factor(ID)), size=0.05)+
+  #   labs(title=prjt[i])+
+  #   ylab("")+
+  #   theme(legend.title=element_blank())+
+  #   guides(colour = guide_legend(override.aes = list(size=3))) 
+  # ggsave(paste0(usrdir,savedir,"PLOTS/Dives_DailySummary/",prjt[i],"_Mean&MaxDepth.png"), dpi=300)
+  # 
 }
 
 
 # Plots of multi-deployment summary data ----------------------------------
 # Project info ------------------------------------------------------------
 prj_info<-read.csv(paste0(usrdir,"/data/Field Data/Project Titles and IDs.csv"))
-dive_sum_AllB<-left_join(dive_sum_AllB,prj_info,by="Project_ID")
+
+D_sum_AllB<-left_join(D_sum_AllB,prj_info,by=c("Project"="Project_ID"))
+daily_sum_AllB<-left_join(daily_sum_AllB,prj_info,by=c("Project"="Project_ID"))
+dive_sum_AllB<-left_join(dive_sum_AllB,prj_info,by=c("Project"="Project_ID"))
+
+# Save multiple objects
+save(D_sum_AllB, daily_sum_AllB, dive_sum_AllB, file = paste0(usrdir,savedir,"/DiveSummaryFiles_AllBirds.RData"))
+read(paste0(usrdir,savedir,"/DiveSummaryFiles_AllBirds.RData"))
 
 # dive summary
 
+# box plot of MAX Depth of each dive: from individual dive statistics 
 names(dive_sum_AllB)
-
-#not a useful plot - you want the daily dive summary instead for plotting
 ggplot()+
-  geom_point(data=dive_sum_AllB, aes(x=nDives, y=-maxDepth))
+  geom_boxplot(data=dive_sum_AllB%>%filter(Project!="BAHHASO22")%>%filter(maxDepth<100)%>%
+                 filter(Species_Long!="Pelagic Cormorant & Brandt's Cormorant"),
+               aes(group=Species_Long, y=-maxDepth, fill=Species_Long))+
+  theme_classic()+
+  theme(axis.text.x = element_blank())
+ggsave(paste0(usrdir,savedir,"PLOTS/SpeciesDiveDepthCompaire.png"), dpi=300)
+
+# box plot of dive duration of each dive: from individual dive statistics 
+dive_sum_AllB$Dur_sec<-as.numeric(dive_sum_AllB$dive_dur)
+hist(dive_sum_AllB$Dur_sec)
+ggplot()+
+  geom_boxplot(data=dive_sum_AllB%>%filter(Project!="BAHHASO22")%>%filter(maxDepth<100)%>%
+                 filter(Dur_sec<180)%>% #something is going on here - looks OK with these filtered out though
+                 filter(Species_Long!="Pelagic Cormorant & Brandt's Cormorant"),
+               aes(group=Species_Long, y=Dur_sec, fill=Species_Long))+
+  theme_classic()+
+  theme(axis.text.x = element_blank())
+ggsave(paste0(usrdir,savedir,"PLOTS/SpeciesDiveDurationCompaire.png"), dpi=300)
+
+# box plot of dives / day : from daily dive statistics 
+names(daily_sum_AllB)
+ggplot()+
+  geom_boxplot(data=daily_sum_AllB%>%filter(Project!="BAHHASO22")%>%
+               filter(Species_Long!="Pelagic Cormorant & Brandt's Cormorant"),
+               aes(group=Species_Long, y=nDives, fill=Species_Long))+
+  theme_classic()+
+  theme(axis.text.x = element_blank())
+ggsave(paste0(usrdir,savedir,"PLOTS/SpeciesDivePerDayCompaire.png"), dpi=300)
 
