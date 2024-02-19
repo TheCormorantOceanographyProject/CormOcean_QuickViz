@@ -151,6 +151,7 @@ ggplot()+
   geom_boxplot(data=dive_sum_AllB%>%filter(Project!="BAHHASO22")%>%filter(maxDepth<100)%>%
                  filter(Species_Long!="Pelagic Cormorant & Brandt's Cormorant"),
                aes(group=Species_Long, y=-maxDepth, fill=Species_Long))+
+  ylab("Dive Depth (m)")+
   theme_classic()+
   theme(axis.text.x = element_blank())
 ggsave(paste0(usrdir,savedir,"PLOTS/SpeciesDiveDepthCompaire.png"), dpi=300)
@@ -163,6 +164,7 @@ ggplot()+
                  filter(Dur_sec<180)%>% #something is going on here - looks OK with these filtered out though
                  filter(Species_Long!="Pelagic Cormorant & Brandt's Cormorant"),
                aes(group=Species_Long, y=Dur_sec, fill=Species_Long))+
+  ylab("Dive Duration (sec)")+
   theme_classic()+
   theme(axis.text.x = element_blank())
 ggsave(paste0(usrdir,savedir,"PLOTS/SpeciesDiveDurationCompaire.png"), dpi=300)
@@ -173,6 +175,7 @@ ggplot()+
   geom_boxplot(data=daily_sum_AllB%>%filter(Project!="BAHHASO22")%>%
                filter(Species_Long!="Pelagic Cormorant & Brandt's Cormorant"),
                aes(group=Species_Long, y=nDives, fill=Species_Long))+
+  ylab("Dives / Day")+
   theme_classic()+
   theme(axis.text.x = element_blank())
 ggsave(paste0(usrdir,savedir,"PLOTS/SpeciesDivePerDayCompaire.png"), dpi=300)
