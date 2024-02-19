@@ -78,11 +78,27 @@ ggplot()+
   facet_wrap(~Species_Long)+
   theme(legend.position = "none")
 
+ggplot()+
+  geom_boxplot(data=locs_dailysum%>%
+               filter(Species_Long!='Imperial Cormorant' & Species_Long!='Humboldt Penguin'), #removes some species, add more here?
+             aes(y=dailyDist_km, group=Species_Long, fill=Species_Long))+
+  ylab("Daily Distance Traveled (km)")+
+  theme_classic()+
+  theme(axis.text.x = element_blank())
+ggsave(paste0(usrdir,savedir,"PLOTS/Species_DailyDistanceTraveled.png"), dpi=300)
+
+
 longdistDays<-locs_dailysum%>%filter(dailyDist_km>200)
+write.csv(longdistDays, paste0(usrdir,savedir,"AllProjects_GPSraw_DailyDistT_longestdays.csv"))
 
 ggplot()+
   geom_point(data=longdistDays, 
-             aes(x=Jdate_lc,y=dailyDist_km, color=Species_Long))
+             aes(x=Jdate_lc,y=dailyDist_km, color=Species_Long))+
+  ylab("Daily Distance Traveled (km)")+
+  xlab("Day of Year (Julian date)")+
+  theme_classic()
+ggsave(paste0(usrdir,savedir,"PLOTS/Species_DailyDistanceTraveled_LongestDays.png"), dpi=300)
+
 
 saveRDS(locs_dailysum, paste0(usrdir,savedir,"AllProjects_GPSraw_DailyDistT.rda"))
 
