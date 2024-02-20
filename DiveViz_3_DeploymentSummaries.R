@@ -205,6 +205,10 @@ dive_sum_mass<-left_join(dive_sum_AllB,mass_rank, by ="Species_Long")
 
 names(dive_sum_mass)
 
+dive_sum_mass$pencorm<-"Cormorant"
+dive_sum_mass$pencorm[Species=="HUPE"]<-"Penguin"
+dive_sum_mass$pencorm[Species=="AFPE"]<-"Penguin"
+
 ggplot()+
   geom_boxplot(data=dive_sum_mass%>%filter(Project!="BAHHASO22", Project!="SOUDICA22")%>%filter(maxDepth<100)%>%
                  filter(Species_Long!="Pelagic Cormorant & Brandt's Cormorant"),
@@ -212,7 +216,8 @@ ggplot()+
   labs(fill = "Common Name")+
   ylab("Dive Depth (m)")+
   theme_classic()+
-  theme(axis.text.x = element_blank())
+  theme(axis.text.x = element_blank())+
+  facet_wrap(~pencorm)
 
 #ggsave(paste0(usrdir,savedir,"PLOTS/SpeciesDiveDepth_ByMassCompaire.png"), dpi=300) 
 
