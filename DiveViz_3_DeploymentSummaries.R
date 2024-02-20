@@ -193,19 +193,27 @@ ggsave(paste0(usrdir,savedir,"PLOTS/SpeciesDivePerDayCompaire.png"), dpi=300)
 ################ Plots for Presentation #############
 
 ## dive depth ordered by average species mass(g)
+
 mass_rank<-read.csv(paste0(usrdir,"data/Field Data/Species_Av_Mass.csv"))
 
+#sp_grp<-read.csv(paste0(usrdir, "data/Field Data/group_level.csv")) #  species family level
+
 dive_sum_mass<-left_join(dive_sum_AllB,mass_rank, by ="Species_Long")
-#dive_sum_mass$Rank<-as.character(dive_sum_mass$Rank)
+
+#dive_sum_massg<-left_join(dive_sum_mass, sp_grp, by = "Species_Long") # adds family level coloumn 
+#dive_sum_mass$Rank<-as.character(dive_sum_mass$Rank) # doesn't seem to need rank as character
 
 names(dive_sum_mass)
 
 ggplot()+
   geom_boxplot(data=dive_sum_mass%>%filter(Project!="BAHHASO22", Project!="SOUDICA22")%>%filter(maxDepth<100)%>%
                  filter(Species_Long!="Pelagic Cormorant & Brandt's Cormorant"),
-               aes(group=reorder(Species_Long,Rank), y=-maxDepth, fill=reorder(Species_Long,Rank)))+
+               aes(group=reorder(Species_Long,Rank), y=-maxDepth, fill= reorder(Species_Long,Rank)))+
   labs(fill = "Common Name")+
   ylab("Dive Depth (m)")+
   theme_classic()+
   theme(axis.text.x = element_blank())
-ggsave(paste0(usrdir,savedir,"PLOTS/SpeciesDiveDepth_ByMassCompaire.png"), dpi=300) 
+
+#ggsave(paste0(usrdir,savedir,"PLOTS/SpeciesDiveDepth_ByMassCompaire.png"), dpi=300) 
+
+
