@@ -188,3 +188,24 @@ ggplot()+
   theme(axis.text.x = element_blank())
 ggsave(paste0(usrdir,savedir,"PLOTS/SpeciesDivePerDayCompaire.png"), dpi=300)
 
+
+
+################ Plots for Presentation #############
+
+
+mass_rank<-read.csv(paste0(usrdir,"data/Field Data/Species_Av_Mass.csv"))
+
+dive_sum_mass<-left_join(dive_sum_AllB,mass_rank, by ="Species_Long")
+#dive_sum_mass$Rank<-as.character(dive_sum_mass$Rank)
+
+names(dive_sum_mass)
+
+ggplot()+
+  geom_boxplot(data=dive_sum_mass%>%filter(Project!="BAHHASO22", Project!="SOUDICA22")%>%filter(maxDepth<100)%>%
+                 filter(Species_Long!="Pelagic Cormorant & Brandt's Cormorant"),
+               aes(group=reorder(Species_Long,Rank), y=-maxDepth, fill=reorder(Species_Long,Rank)))+
+  labs(fill = "Common Name")+
+  ylab("Dive Depth (m)")+
+  theme_classic()+
+  theme(axis.text.x = element_blank())
+  
