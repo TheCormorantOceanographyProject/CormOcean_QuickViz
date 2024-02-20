@@ -217,7 +217,7 @@ ggplot()+
   ylab("Dive Depth (m)")+
   theme_classic()+
   theme(axis.text.x = element_blank())+
-  facet_wrap(~pencorm)
+  facet_wrap(~pencorm, scales = "free_x")
 
 #ggsave(paste0(usrdir,savedir,"PLOTS/SpeciesDiveDepth_ByMassCompaire.png"), dpi=300) 
 
