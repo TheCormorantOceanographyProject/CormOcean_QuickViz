@@ -43,7 +43,7 @@ prjt<-prjt[prjt!="USACRBRPE19"] #I am not sure why this one is missing
 # Loop through each project -----------------------------------------------
 # you can run project individually by picking an i value i=10 gives you "PERIPGU22_SC" etc. 
 # then just run the code after the initial for statement
-for (i in i:length(prjt)){
+for (i in 1:length(prjt)){
   
   # Find Project Data Files 
   Files<-list.files(paste0(usrdir,savedir,"Processed_DiveID_ByBird/"), pattern = prjt[i], full.names = TRUE)

@@ -44,7 +44,7 @@ prjt<-prjt[prjt!="USACRBRDO14"]
 #BAHHASO21, USACRBR22 - possibly started midway through also NOTE_DIVING in datatype - not on and off
 
 # Loop through each project -----------------------------------------------
-for (i in 2:length(prjt)){
+for (i in 32:length(prjt)){
   
 # Find Project Data Files -------------------------------------------------
 Files<-list.files(paste0(usrdir,savedir,"Processed_Dive_Deployment_Data/"), pattern = prjt[i],full.names = TRUE)
