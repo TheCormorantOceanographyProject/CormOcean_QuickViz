@@ -200,25 +200,44 @@ mass_rank<-read.csv(paste0(usrdir,"data/Field Data/Species_Av_Mass.csv"))
 
 dive_sum_mass<-left_join(dive_sum_AllB,mass_rank, by ="Species_Long")
 
-#dive_sum_massg<-left_join(dive_sum_mass, sp_grp, by = "Species_Long") # adds family level coloumn 
-#dive_sum_mass$Rank<-as.character(dive_sum_mass$Rank) # doesn't seem to need rank as character
+#dive_sum_massf<-left_join(dive_sum_mass, sp_grp, by = "Species_Long") # adds family level column 
 
 names(dive_sum_mass)
 
 dive_sum_mass$pencorm<-"Cormorant"
-dive_sum_mass$pencorm[Species=="HUPE"]<-"Penguin"
-dive_sum_mass$pencorm[Species=="AFPE"]<-"Penguin"
+dive_sum_mass$pencorm[dive_sum_mass$Species=="HUPE"]<-"Penguin"
+dive_sum_mass$pencorm[dive_sum_mass$Species=="AFPE"]<-"Penguin"
 
 ggplot()+
   geom_boxplot(data=dive_sum_mass%>%filter(Project!="BAHHASO22", Project!="SOUDICA22")%>%filter(maxDepth<100)%>%
-                 filter(Species_Long!="Pelagic Cormorant & Brandt's Cormorant"),
+                 filter(Species_Long!="Pelagic Cormorant & Brandt's Cormorant", Species_Long!="Humboldt Penguin", Species_Long!="African Penguin"),
                aes(group=reorder(Species_Long,Rank), y=-maxDepth, fill= reorder(Species_Long,Rank)))+
   labs(fill = "Common Name")+
   ylab("Dive Depth (m)")+
   theme_classic()+
-  theme(axis.text.x = element_blank())+
-  facet_wrap(~pencorm, scales = "free_x")
+  theme(axis.text.x = element_blank())
+#+
+  #facet_wrap(~pencorm, scales = "free_x")
 
-#ggsave(paste0(usrdir,savedir,"PLOTS/SpeciesDiveDepth_ByMassCompaire.png"), dpi=300) 
+ggsave(paste0(usrdir,savedir,"PLOTS/SpeciesDiveDepth_ByMass_Corms.png"), dpi=300) 
 
 
+###### Dive Duration
+
+dive_sum_mass$Dur_sec<-as.numeric(dive_sum_mass$dive_dur)
+hist(dive_sum_mass$Dur_sec)
+
+ggplot()+
+  geom_boxplot(data=dive_sum_mass%>%filter(Project!="BAHHASO22", Project!="SOUDICA22")%>%filter(maxDepth<100)%>%
+                 filter(Dur_sec<180)%>% #something is going on here - looks OK with these filtered out though
+                 filter(Species_Long!="Pelagic Cormorant & Brandt's Cormorant", Species_Long!="Humboldt Pengiun", Species_Long!="African Penguin"),
+               aes(group=Species_Long, y=Dur_sec, fill=Species_Long))+
+  labs(fill = "Common Name")+
+  ylab("Dive Duration (sec)")+
+  theme_classic()+
+  theme(axis.text.x = element_blank())
+#ggsave(paste0(usrdir,savedir,"PLOTS/SpeciesDiveDurationCompaire.png"), dpi=300)
+
+
+#####
+  
