@@ -17,8 +17,8 @@ library(conflicted)
 
 if(Sys.info()[7]=="alexa") {
   usrdir<-"/Users/alexa/Box Sync/DASHCAMS/"
-  datadir<-'data/ornitela_for_ATN/'
-  savedir<-'Analysis/DataViz/'
+  datadir<-'Analysis/DataViz/'
+  savedir<-'data/ornitela_for_ATN/'
   deplymatrix<-'data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
   source('/Users/alexa/git_repos/CormOcean_QuickViz/MakeDive.R')
 }
