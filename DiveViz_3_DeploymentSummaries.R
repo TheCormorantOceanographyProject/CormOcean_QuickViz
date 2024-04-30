@@ -5,6 +5,7 @@ library(data.table) #rename
 library(stringr)
 library(R.utils)
 library(tidyr)
+library(R.matlab)
 
 if(Sys.info()[7]=="rachaelorben") {
   usrdir<-"/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/"
@@ -45,28 +46,34 @@ prjt_complete<-prjt_all[!(prjt_all %in% prjt_current)]
 #prjt<-prjt_current
 prjt<-prjt_all
 prjt<-prjt[prjt!="USACRBRDO14"]
-prjt<-prjt[prjt!="USACRBRPE19"] #I am not sure why this one is missing
+#prjt<-prjt[prjt!="USACRBRPE19"] #I am not sure why this one is missing
 
-
+prjt
 # Loop through each project -----------------------------------------------
 # you can run project individually by picking an i value i=10 gives you "PERIPGU22_SC" etc. 
 # then just run the code after the initial for statement
 for (i in 1:length(prjt)){
   
   # Find Project Data Files 
-  Files<-list.files(paste0(usrdir,savedir,"Processed_DiveID_ByBird/"), pattern = prjt[i], full.names = TRUE)
-  filenames<-list.files(paste0(usrdir,savedir,"Processed_DiveID_ByBird/"),pattern = prjt[i])
+  Files<-list.files(paste0(usrdir,savedir,"Processed_2_DiveID_ByBird/"), pattern = prjt[i], full.names = TRUE)
+  filenames<-list.files(paste0(usrdir,savedir,"Processed_2_DiveID_ByBird/"),pattern = prjt[i])
   
   Birds_dpth<-NULL
   for (k in 1:length(Files)){
-    birdy_d<-readRDS(paste0(usrdir,savedir,"Processed_DiveID_ByBird/",filenames[k]))
+    birdy_d<-readRDS(paste0(usrdir,savedir,"Processed_2_DiveID_ByBird/",filenames[k]))
     Birds_dpth<-rbind(Birds_dpth,birdy_d)
   }
   rm(birdy_d)
-}  
- 
- saveRDS(Birds_dpth, paste0(usrdir,savedir,"Processed_DiveID_ByDeployment/",prjt[i],"_DiveID.rds"))
 
+saveRDS(Birds_dpth, paste0(usrdir,savedir,"Processed_3_DiveID_ByDeployment/",prjt[i],"_DiveID.rds"))
+filename=paste0(usrdir,savedir,"Processed_3_DiveID_ByDeployment_mat/",prjt[i],"_DiveID.mat")
+
+writeMat(filename,
+         oid=Birds_dpth$oid,
+         ID=Birds_dpth$ID,
+         datetime=Birds_dpth
+         , fixNames=TRUE, )
+}
 
 
 # Pulls full deployment data back in and summarizes -----------------------

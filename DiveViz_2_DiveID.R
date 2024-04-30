@@ -44,7 +44,7 @@ prjt<-prjt[prjt!="USACRBRDO14"]
 #BAHHASO21, USACRBR22 - possibly started midway through also NOTE_DIVING in datatype - not on and off
 
 # Loop through each project -----------------------------------------------
-for (i in 32:length(prjt)){
+for (i in 1:length(prjt)){
   
 # Find Project Data Files -------------------------------------------------
 Files<-list.files(paste0(usrdir,savedir,"Processed_Dive_Deployment_Data/"), pattern = prjt[i],full.names = TRUE)
@@ -97,7 +97,8 @@ birdy_d_MD$conductivity_mS.cm<-birdy_d$conductivity_mS.cm
 unique(birdy_d_MD$datatype)
 birdy_d_MD$Project<-prjt[i]
   
-saveRDS(birdy_d_MD, paste0(usrdir,savedir,"Processed_DiveID_ByBird//",prjt[i],"_",IDS[j],"_DiveOnlyID_DiveNote",DN,".rds"))
+saveRDS(birdy_d_MD, paste0(usrdir,savedir,"Processed_2_DiveID_ByBird//",prjt[i],"_",IDS[j],"_DiveOnlyID_DiveNote",DN,".rds"))
+
 }
 }
 

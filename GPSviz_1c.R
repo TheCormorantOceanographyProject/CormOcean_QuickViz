@@ -23,6 +23,15 @@ if(Sys.info()[7]=="alexa") {
   source('/Users/alexa/git_repos/CormOcean_QuickViz/MakeDive.R')
 }
 
+
+if(Sys.info()[7]=="rachaelorben") {
+  usrdir<-"/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/"
+  datadir<-'/data/ornitela_for_ATN/'
+  savedir<-'Analysis/DataViz/'
+  deplymatrix<-'/data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
+  source('/Users/rachaelorben/git_repos/CormOcean/MakeDive.R')
+}
+
 #  Deployment matrix ---------------------------------------------
 deploy_matrix<-read.csv(paste0(usrdir,deplymatrix))
 deploy_matrix$DeploymentStartDatetime<-mdy_hm(deploy_matrix$DeploymentStartDatetime)-(deploy_matrix$UTC_offset_deploy*60*60)
@@ -46,11 +55,24 @@ prjt_complete<-prjt_all[!(prjt_all %in% prjt_current)]
 prjt<-prjt_all
 prjt<-prjt[prjt!="USACRBRDO14"] #removes non-Ornitela Projects
 
+<<<<<<< HEAD
 for (i in 1:length(prjt)){
+=======
+Files<-list.files("/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/Analysis/DataViz/Processed_GPS_Deployment_Data", full.names = TRUE)
+
+for (i in 1:length(Files)){
   
-  Files<-list.files(paste0(usrdir,datadir,"Processed_GPS_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"), full.names = TRUE)
+  dat<-readRDS(Files[i])
   
-  if (length(Files)==0) next
+  birdID<-unique(dat$device_id)
+  projID<-dat$Project_ID[1]
+>>>>>>> bd6e0df4351528e033370e11146802d1743bdb32
+  
+  for (k in 1:length(birdID)){
+    birdy<-dat%>%filter(dat==birdID[k])
+    write.csv(birdy,filename here) #need to fix this and pull the project ID to file correctly
+  }
+  
 }
 
 prjt
