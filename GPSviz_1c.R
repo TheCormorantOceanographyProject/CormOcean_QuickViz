@@ -46,7 +46,6 @@ prjt_complete<-prjt_all[!(prjt_all %in% prjt_current)]
 prjt<-prjt_all
 prjt<-prjt[prjt!="USACRBRDO14"] #removes non-Ornitela Projects
 
-
 for (i in 1:length(prjt)){
   
   Files<-list.files(paste0(usrdir,datadir,"Processed_GPS_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"), full.names = TRUE)
@@ -54,4 +53,5 @@ for (i in 1:length(prjt)){
   if (length(Files)==0) next
 }
 
-
+prjt
+length(prjt)
