@@ -14,11 +14,13 @@ library(argosfilter)#forward-backward speed filter for GPS data
 library(sf)
 library(MetBrewer)
 library(conflicted)
+library(magrittr) 
+
 
 if(Sys.info()[7]=="alexa") {
   usrdir<-"/Users/alexa/Box Sync/DASHCAMS/"
   datadir<-'Analysis/DataViz/'
-  savedir<-'data/ornitela_for_ATN/'
+  savedir<-"/Users/alexa/Box Sync/Test/"
   deplymatrix<-'data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
   source('/Users/alexa/git_repos/CormOcean_QuickViz/MakeDive.R')
 }
@@ -55,25 +57,37 @@ prjt_complete<-prjt_all[!(prjt_all %in% prjt_current)]
 prjt<-prjt_all
 prjt<-prjt[prjt!="USACRBRDO14"] #removes non-Ornitela Projects
 
-<<<<<<< HEAD
+HEAD
 for (i in 1:length(prjt)){
-=======
-Files<-list.files("/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/Analysis/DataViz/Processed_GPS_Deployment_Data", full.names = TRUE)
+
+Files<-list.files("/Users/alexa/Box Sync/DASHCAMS/Analysis/DataViz/Processed_GPS_Deployment_Data", full.names = TRUE)
+}
+
+Files
 
 for (i in 1:length(Files)){
   
   dat<-readRDS(Files[i])
-  
-  birdID<-unique(dat$device_id)
-  projID<-dat$Project_ID[1]
->>>>>>> bd6e0df4351528e033370e11146802d1743bdb32
+  birdID<-unique(dat$device_id) # gets the data for each unique device as it loops through
+  projID<-dat$Project_ID[1]  # gets the project ID 
   
   for (k in 1:length(birdID)){
-    birdy<-dat%>%filter(dat==birdID[k])
-    write.csv(birdy,filename here) #need to fix this and pull the project ID to file correctly
+   # birdy<-dat%>%filter(dat==birdID[k]) #filter the RDS data by bird ID
+    birdy<-dat%>%filter(device_id==birdID[k])
+    
+    for (j in length(projID)){
+      folder<-dir.create(paste0(savedir,"Test2/",projID[j]))}
+    
+  }
+}
+    
+    write.csv(birdy,paste0(savedir,"Test/",birdID[k],"_GPS.csv")) #need to fix this and pull the project ID to file correctly
   }
   
 }
 
 prjt
 length(prjt)
+
+for (j in length(projID)){
+  folder<-dir.create(paste0(savedir,projID[j]))}
