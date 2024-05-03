@@ -20,7 +20,7 @@ library(magrittr)
 if(Sys.info()[7]=="alexa") {
   usrdir<-"/Users/alexa/Box Sync/DASHCAMS/"
   datadir<-'Analysis/DataViz/'
-  savedir<-"/Users/alexa/Box Sync/Test/"
+  savedir<-"/Users/alexa/Box Sync/Test2/"
   deplymatrix<-'data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
   source('/Users/alexa/git_repos/CormOcean_QuickViz/MakeDive.R')
 }
@@ -68,12 +68,13 @@ Files
 for (i in 1:length(Files)){
   
   dat<-readRDS(Files[i])
-  birdID<-unique(dat$device_id) # gets the data for each unique device as it loops through
+  birdID<-unique(dat$device_id) # gets unique device ID as it loops through
   projID<-dat$Project_ID[1]  # gets the project ID 
   
   for (k in 1:length(birdID)){
    # birdy<-dat%>%filter(dat==birdID[k]) #filter the RDS data by bird ID
     birdy<-dat%>%filter(device_id==birdID[k])
+    
     
     for (j in length(projID)){
       folder<-dir.create(paste0(savedir,"Test2/",projID[j]))}
@@ -81,7 +82,7 @@ for (i in 1:length(Files)){
   }
 }
     
-    write.csv(birdy,paste0(savedir,"Test/",birdID[k],"_GPS.csv")) #need to fix this and pull the project ID to file correctly
+write.csv(birdy,paste0(savedir,"Test2/", birdID[k],"_GPS.csv")) #need to fix this and pull the project ID to file correctly
   }
   
 }
