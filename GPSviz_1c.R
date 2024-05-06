@@ -65,30 +65,29 @@ Files<-list.files("/Users/alexa/Box Sync/DASHCAMS/Analysis/DataViz/Processed_GPS
 
 Files
 
+#create project folders
+
 for (i in 1:length(Files)){
   
   dat<-readRDS(Files[i])
   birdID<-unique(dat$device_id) # gets unique device ID as it loops through
   projID<-dat$Project_ID[1]  # gets the project ID 
   
+  
   for (k in 1:length(birdID)){
-   # birdy<-dat%>%filter(dat==birdID[k]) #filter the RDS data by bird ID
+   # birdy<-dat%>%filter(dat==birdID[k]) #filter the RDS data by bird ID, didn't work so updated below
     birdy<-dat%>%filter(device_id==birdID[k])
-    
+    birdy<-birdy%>%filter(datatype=="GPS")
     
     for (j in length(projID)){
-      folder<-dir.create(paste0(savedir,"Test2/",projID[j]))}
-    
+      folder<-dir.create(paste0(savedir,"Test/",projID[j])) # create project folders
+      
+write.csv(birdy,paste0(savedir,"Test/", birdID[k],"_GPS.csv")) #need to fix this and pull the project ID to file correctly
+    }
   }
 }
-    
-write.csv(birdy,paste0(savedir,"Test2/", birdID[k],"_GPS.csv")) #need to fix this and pull the project ID to file correctly
-  }
-  
-}
 
-prjt
-length(prjt)
 
-for (j in length(projID)){
-  folder<-dir.create(paste0(savedir,projID[j]))}
+
+
+
