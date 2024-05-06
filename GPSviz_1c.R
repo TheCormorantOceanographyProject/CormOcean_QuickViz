@@ -59,8 +59,9 @@ prjt<-prjt[prjt!="USACRBRDO14"] #removes non-Ornitela Projects
 
 HEAD
 for (i in 1:length(prjt)){
+#Files<-list.files("/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/Analysis/DataViz/Processed_GPS_Deployment_Data", full.names = TRUE)
 
-Files<-list.files("/Users/alexa/Box Sync/DASHCAMS/Analysis/DataViz/Processed_GPS_Deployment_Data", full.names = TRUE)
+  Files<-list.files("/Users/alexa/Box Sync/DASHCAMS/Analysis/DataViz/Processed_GPS_Deployment_Data", full.names = TRUE)
 }
 
 Files
