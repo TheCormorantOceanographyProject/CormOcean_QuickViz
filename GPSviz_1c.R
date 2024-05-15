@@ -20,7 +20,7 @@ library(magrittr)
 if(Sys.info()[7]=="alexa") {
   usrdir<-"/Users/alexa/Box Sync/DASHCAMS/"
   datadir<-'Analysis/DataViz/'
-  savedir<-"/Users/alexa/Box Sync/Test2/"
+  savedir<-"/Users/alexa/Box Sync/Test/"
   deplymatrix<-'data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
   source('/Users/alexa/git_repos/CormOcean_QuickViz/MakeDive.R')
 }
@@ -83,7 +83,13 @@ for (i in 1:length(Files)){
   projID<-dat$Project_ID[1]  # gets the project ID 
   
   #this needs to be put into an if statement so it doesn't make the folder if it is already there. 
-  folder<-dir.create(paste0(savedir,"Test/",projID[j])) # create project folders
+  
+  for (j in length(projID)){
+    if (!dir.exists(savedir)){
+      folder<-dir.create(paste0(savedir,"Test/",projID[j]))# create project folders
+    } else {
+      next
+    }
   
   for (k in 1:length(birdID)){
    # birdy<-dat%>%filter(dat==birdID[k]) #filter the RDS data by bird ID, didn't work so updated below
@@ -94,7 +100,7 @@ for (i in 1:length(Files)){
     write.csv(birdy,paste0(usrdir, savedir,"projID_ make project folder addresses here/", birdID[k],"_GPS.csv")) #need to fix this and pull the project ID to file correctly
     }
   }
-
+}
 
 
 
