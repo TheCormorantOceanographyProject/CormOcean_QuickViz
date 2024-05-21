@@ -16,6 +16,8 @@ library(MetBrewer)
 library(conflicted)
 library(magrittr) 
 
+conflicted::conflicts_prefer(dplyr::filter)
+
 
 if(Sys.info()[7]=="alexa") {
   usrdir<-"/Users/alexa/Box Sync/DASHCAMS/"
@@ -57,20 +59,20 @@ prjt_complete<-prjt_all[!(prjt_all %in% prjt_current)]
 prjt<-prjt_all
 prjt<-prjt[prjt!="USACRBRDO14"] #removes non-Ornitela Projects
 
-<<<<<<< HEAD
-HEAD
+#<<<<<<< HEAD
+#HEAD
 for (i in 1:length(prjt)){
-#Files<-list.files("/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/Analysis/DataViz/Processed_GPS_Deployment_Data", full.names = TRUE)
 
+  #Files<-list.files("/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/Analysis/DataViz/Processed_GPS_Deployment_Data", full.names = TRUE)
   Files<-list.files("/Users/alexa/Box Sync/DASHCAMS/Analysis/DataViz/Processed_GPS_Deployment_Data", full.names = TRUE)
 }
-=======
+#=======
 #HEAD
 #for (i in 1:length(prjt)){
 
-Files<-list.files(paste0(usrdir,datadir,"Processed_GPS_Deployment_Data"), full.names = TRUE)
+#Files<-list.files(paste0(usrdir,datadir,"Processed_GPS_Deployment_Data"), full.names = TRUE)
 #}
->>>>>>> ed5f921c00c66b7b8d6d733c3c1c6a156aa61dc9
+#>>>>>>> ed5f921c00c66b7b8d6d733c3c1c6a156aa61dc9
 
 Files
 
@@ -85,16 +87,14 @@ for (i in 1:length(Files)){
   #this needs to be put into an if statement so it doesn't make the folder if it is already there. 
   
   for (j in length(projID)){
-    if (!dir.exists(savedir)){
-      folder<-dir.create(paste0(savedir,"Test/",projID[j]))# create project folders
+    if (!dir.exists(savedir)==projID[j]){
+      dir.create(paste0(savedir,projID[j]))# create project folders
     } else {
       next
-    }
-  
+    }  
+
   for (k in 1:length(birdID)){
-   # birdy<-dat%>%filter(dat==birdID[k]) #filter the RDS data by bird ID, didn't work so updated below
     birdy<-dat%>%filter(device_id==birdID[k])
-    #birdy<-birdy%>%filter(datatype=="GPS") #this is what we are trying to fix and we DO NOT want to do this, the data are already filtered to GPS locations
     
     #missing userdir  
     write.csv(birdy,paste0(usrdir, savedir,"projID_ make project folder addresses here/", birdID[k],"_GPS.csv")) #need to fix this and pull the project ID to file correctly
