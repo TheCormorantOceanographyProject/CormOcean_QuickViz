@@ -64,6 +64,7 @@ for (i in 1:length(Files)){
   if(is.na(info[1])==FALSE){df$UTC_datetime<-mdy_hm(df$UTC_datetime)}
   if(is.na(info[1])==TRUE){df$UTC_datetime<-ymd_hms(df$UTC_datetime)}
   today<-.POSIXct(Sys.time(), "UTC")
+  if(is.na(df$UTC_datetime[1])==TRUE){next}
   if(df$UTC_datetime[1]>today-604800){sel_files<-c(sel_files,Files[i])} #selects files with a last date within 7 days of today
 }
 
@@ -203,7 +204,7 @@ IDs<-unique(Birds$device_id)
 for (i in 1:length(IDs)){
   
   birdy<-Birds[Birds$device_id==IDs[i],]
-  Mdt<-min(birdy$datetime)
+  Mdt<-min(birdy$datetime, na.rm=TRUE)
   
   labs <- data.frame(variable = c("a", "b","bb","c","d","e","f","g"), 
                      title_wd = c("Depth", "Temp","Con","Lat","Drift","Bat","Solar","VecSum"), 
@@ -217,7 +218,7 @@ for (i in 1:length(IDs)){
                aes(x=datetime,y=-depth_m),size=.01, color="blue")+
     geom_point(data=dsum%>%filter(ID==IDs[i]),aes(x=datetime,y=n), size=3,alpha=.5, color="blue")+
     #lat=black
-    geom_point(data=birdy,aes(x=datetime,y=abs(lat)),size=.01, color="black")+
+    geom_point(data=birdy%>%filter(is.na(lat)==FALSE),aes(x=datetime,y=abs(lat)),size=.01, color="black")+
     geom_point(data=birdy%>%filter(GPS_surfacedrifts==1),aes(x=datetime,y=abs(lat)+5),size=.02, color="darkgreen")+
     #temperature=purple
     geom_point(data=birdy%>%filter(ext_temperature_C<100)%>%filter(ext_temperature_C>0),
