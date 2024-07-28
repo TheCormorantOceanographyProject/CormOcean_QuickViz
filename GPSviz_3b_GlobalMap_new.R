@@ -145,7 +145,7 @@ ggplot() +
   #ylab("Latitude")+
   labs(
     title = "Cormorant Oceanography Project",
-    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (2019-2023)",
+    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (2019-2024)",
     caption = "Data: Cormorant Oceanography Project") +
   theme_bw()+
   theme(legend.title=element_blank())+
@@ -171,7 +171,7 @@ ggplot() +
   #ylab("Latitude")+
   labs(
     title = "Cormorant Oceanography Project",
-    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (2019-2023)",
+    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (2019-2024)",
     caption = "Data: Cormorant Oceanography Project") +
   theme_bw()+
   theme(legend.title=element_blank())+
@@ -201,7 +201,7 @@ ggplot() +
   #ylab("Latitude")+
   labs(
     title = "Cormorant Oceanography Project",
-    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (2019-2023)",
+    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (2019-2024)",
     caption = "Data: Cormorant Oceanography Project") +
   theme_bw()+
   theme(legend.title=element_blank())+
@@ -231,7 +231,7 @@ ggplot() +
   #ylab("Latitude")+
   labs(
     title = "Cormorant Oceanography Project",
-    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (2019-2023)",
+    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (2019-2024)",
     caption = "Data: Cormorant Oceanography Project") +
   theme_bw()+
   theme(legend.title=element_blank())+
