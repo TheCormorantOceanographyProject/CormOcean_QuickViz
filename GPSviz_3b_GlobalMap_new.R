@@ -55,7 +55,7 @@ for (i in 1:length(prjt)){
   names(locs1)
   locs1<-locs1%>%
     ungroup()%>%
-    dplyr::select(device_id,Project_ID, datetime,lat,lon)
+    dplyr::select(device_id,Project_ID, datetime,lat,lon,gpsDiveburstID,gpsNum)
   locs<-rbind(locs,locs1)
 }
 
