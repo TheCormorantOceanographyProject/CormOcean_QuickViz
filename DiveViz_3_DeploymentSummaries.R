@@ -52,7 +52,7 @@ prjt
 # Loop through each project -----------------------------------------------
 # you can run project individually by picking an i value i=10 gives you "PERIPGU22_SC" etc. 
 # then just run the code after the initial for statement
-for (i in 1:length(prjt)){
+for (i in 23:length(prjt)){
   
   # Find Project Data Files 
   Files<-list.files(paste0(usrdir,savedir,"Processed_2_DiveID_ByBird/"), pattern = prjt[i], full.names = TRUE)
@@ -61,18 +61,20 @@ for (i in 1:length(prjt)){
   Birds_dpth<-NULL
   for (k in 1:length(Files)){
     birdy_d<-readRDS(paste0(usrdir,savedir,"Processed_2_DiveID_ByBird/",filenames[k]))
-    Birds_dpth<-rbind(Birds_dpth,birdy_d)
+    Birds_dpth<-bind_rows(Birds_dpth,birdy_d)
   }
   rm(birdy_d)
 
 saveRDS(Birds_dpth, paste0(usrdir,savedir,"Processed_3_DiveID_ByDeployment/",prjt[i],"_DiveID.rds"))
-filename=paste0(usrdir,savedir,"Processed_3_DiveID_ByDeployment_mat/",prjt[i],"_DiveID.mat")
+#filename=paste0(usrdir,savedir,"Processed_3_DiveID_ByDeployment_mat/",prjt[i],"_DiveID.mat")
 
-writeMat(filename,
-         oid=Birds_dpth$oid,
-         ID=Birds_dpth$ID,
-         datetime=Birds_dpth
-         , fixNames=TRUE, )
+#rao: commented out Sept 2024 since data and column names don't match 
+#rao: I think these might have been for Jim, but I am not sure if they are still needed?
+# writeMat(filename,
+#          oid=Birds_dpth$oid,
+#          ID=Birds_dpth$ID,
+#          datetime=Birds_dpth,
+#          fixNames=TRUE)
 }
 
 
@@ -80,7 +82,7 @@ writeMat(filename,
 
 
 # Find Project Data Files 
-filenames<-list.files(paste0(usrdir,savedir,"Processed_DiveID_ByDeployment"), full.names = TRUE)
+filenames<-list.files(paste0(usrdir,savedir,"Processed_3_DiveID_ByDeployment"), full.names = TRUE)
 
 D_sum_AllB<-NULL
 daily_sum_AllB<-NULL

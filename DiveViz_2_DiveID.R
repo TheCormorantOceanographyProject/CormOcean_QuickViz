@@ -94,6 +94,9 @@ birdy_d_MD$date<-date(birdy_d$datetime)
 birdy_d_MD$datatype<-birdy_d$datatype
 birdy_d_MD$ext_temperature_C<-birdy_d$ext_temperature_C
 birdy_d_MD$conductivity_mS.cm<-birdy_d$conductivity_mS.cm
+birdy_d_MD$U_bat_mV<-birdy_d$U_bat_mV
+birdy_d_MD$bat_soc_pct<-birdy_d$bat_soc_pct
+
 unique(birdy_d_MD$datatype)
 birdy_d_MD$Project<-prjt[i]
   
