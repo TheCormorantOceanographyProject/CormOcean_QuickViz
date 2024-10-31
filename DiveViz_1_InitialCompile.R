@@ -105,10 +105,17 @@ for(k in 1:nrow(sets)){
     Birds_dpth<-rbind(Birds_dpth,dat)
   }
   
+  
+  #archive_dat<-readRDS(paste0(usrdir,savedir,"Processed_Dive_Deployment_Data/",prjt[i],"_file_",k,"_DiveOnly.rds"))
+  
+  #if(nrow(archive_dat)==nrow(Birds_dpth)) next #only saves new data if the files are not the same
+  #if(nrow(archive_dat) > nrow(Birds_dpth)) next #only saves new data if there are more new rows
+  
   saveRDS(Birds_dpth, paste0(usrdir,savedir,"Processed_Dive_Deployment_Data/",prjt[i],"_file_",k,"_DiveOnly.rds"))
   
   #if(nrow(Birds_dpth)==0) next
   rm(dat,Birds_dpth)
+  #rm(dat,Birds_dpth,archive_dat)
 }
 }
 
