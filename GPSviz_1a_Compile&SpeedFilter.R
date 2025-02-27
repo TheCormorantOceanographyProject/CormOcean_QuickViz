@@ -111,6 +111,10 @@ for (j in 1:length(IDs)){
   Locs1<-Locs1%>%group_by(datetime)%>%
     distinct(datetime, .keep_all = TRUE)%>%
     arrange(datetime) #arranges by time
+  
+  #add code to trim to real values
+  Locs1<-Locs1%>%filter(lon>(-181))
+  
   try(mfilter<-vmask(lat=Locs1$lat, lon=Locs1$lon, dtime=Locs1$datetime, vmax=vmax_val), silent=FALSE)
   #if mfilter isn't made this makes one that selects all points
   if (exists("mfilter")==FALSE) mfilter<-rep("not", nrow(Locs1))
@@ -132,10 +136,10 @@ locs<- locs %>% group_by(device_id)%>%
 locs<-locs%>%group_by(device_id,gpsDiveburstID)%>%
   mutate(gpsNum=row_number())
 
-#archive_dat<-readRDS(paste0(usrdir,savedir,"Processed_GPS_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
+archive_dat<-readRDS(paste0(usrdir,savedir,"Processed_GPS_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
 
-#if(nrow(archive_dat)==nrow(locs)) next #only saves new data if the files are not the same
-#if(nrow(archive_dat) > nrow(locs)) next #only saves new data if there are more new rows
+if(nrow(archive_dat)==nrow(locs)) next #only saves new data if the files are not the same
+if(nrow(archive_dat) > nrow(locs)) next #only saves new data if there are more new rows
 
 saveRDS(locs, paste0(usrdir,savedir,"Processed_GPS_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
 

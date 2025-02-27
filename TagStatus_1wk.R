@@ -23,14 +23,14 @@ library(tidyr)
 if(Sys.info()[4]=="benthos") {
 datadir<-'/home/DASHCAMS/data_raw/ornitela_ftp/'
 savedir<-'/home/DASHCAMS/data_processed/zTagStatus/'
-deplymatrix<-'/home/DASHCAMS/data_raw/metadata/DASHCAMS_Deployment_Field_Data.csv'
+deplymatrix<-'/home/DASHCAMS/data_raw/metadata/Deployment_Field_Data.csv'
 source('/home/DASHCAMS/git/CormOcean/MakeDive.R')
 }
 
 if(Sys.info()[7]=="rachaelorben") {
   datadir<-'/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/data/ornitela_ftp_data/'
   savedir<-'/Users/rachaelorben/zTagStatus/'
-  deplymatrix<-'/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
+  deplymatrix<-'/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/data/Field Data/Deployment_Field_Data.csv'
   source('/Users/rachaelorben/git_repos/CormOcean/MakeDive.R')
 }
 

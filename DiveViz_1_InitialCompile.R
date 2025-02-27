@@ -81,6 +81,7 @@ for(k in 1:nrow(sets)){
     unique(dat$satcount)
     unique(dat$datatype)
     
+    dat<-dat%>%fill(U_bat_mV,bat_soc_pct) # a bit risky since it just fills until the next GPS/bat level row
     dat<-dat%>%filter(is.na(depth_m)==FALSE | datatype=="NOTE_DIVING") #keeps Diving switch notes
     #moves diving annotations to the datatype column
     dat$datatype[dat$satcount=="DIVING_SENSOR_OFF"]<-"DIVING_SENSOR_OFF"
@@ -98,16 +99,23 @@ for(k in 1:nrow(sets)){
     
     #remove columns not relevant for dive data
     dat<-dat%>%dplyr::select(-satcount,-hdop,-Latitude,-Longitude,-MSL_altitude_m,-Reserved,
-                      -U_bat_mV, -bat_soc_pct,-solar_I_mA,-speed_km.h,-altimeter_m,-milliseconds,
+                      -solar_I_mA,-speed_km.h,-altimeter_m,-milliseconds,
                       -direction_deg,-UTC_timestamp,-UTC_datetime,-UTC_date,-UTC_time,-UTC_time_ms,-Rtime,
                       -acc_x,-acc_y,-acc_z,-mag_x,-mag_y,-mag_z,-int_temperature_C)
     Birds_dpth<-rbind(Birds_dpth,dat)
   }
   
+  
+  #archive_dat<-readRDS(paste0(usrdir,savedir,"Processed_Dive_Deployment_Data/",prjt[i],"_file_",k,"_DiveOnly.rds"))
+  
+  #if(nrow(archive_dat)==nrow(Birds_dpth)) next #only saves new data if the files are not the same
+  #if(nrow(archive_dat) > nrow(Birds_dpth)) next #only saves new data if there are more new rows
+  
   saveRDS(Birds_dpth, paste0(usrdir,savedir,"Processed_Dive_Deployment_Data/",prjt[i],"_file_",k,"_DiveOnly.rds"))
   
   #if(nrow(Birds_dpth)==0) next
   rm(dat,Birds_dpth)
+  #rm(dat,Birds_dpth,archive_dat)
 }
 }
 
