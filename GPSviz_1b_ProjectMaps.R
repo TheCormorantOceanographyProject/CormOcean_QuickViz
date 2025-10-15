@@ -24,11 +24,7 @@ if(Sys.info()[7]=="alexa") {
   usrdir<-"/Users/alexa/Box Sync/DASHCAMS/"
   datadir<-'data/ornitela_for_ATN/'
   savedir<-'Analysis/DataViz/'
-<<<<<<< HEAD
   deplymatrix<-'data/Field Data/Deployment_Field_Data.csv'
-=======
-  deplymatrix<-'/data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
->>>>>>> 7cfd0f9377a338da0ec0c33189283ef808f01786
 }
 
 #  Deployment matrix ---------------------------------------------
