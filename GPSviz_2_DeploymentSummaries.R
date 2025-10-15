@@ -9,24 +9,24 @@ if(Sys.info()[7]=="rachaelorben") {
   usrdir<-"/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/"
   datadir<-'/data/ornitela_for_ATN/'
   savedir<-'Analysis/DataViz/'
-  deplymatrix<-'/data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
+  deplymatrix<-'/data/Field Data/Deployment_Field_Data.csv'
   source('/Users/rachaelorben/git_repos/CormOcean/MakeDive.R')
 }
 
 
 # Project info ------------------------------------------------------------
-prj_info<-read.csv(paste0(usrdir,"/data/Field Data/Project Titles and IDs.csv"))
+prj_info<-read.csv(paste0(usrdir,"/data/Field Data/Project_Titles_and_IDs.csv"))
 
 #  Deployment matrix ---------------------------------------------
 deploy_matrix<-read.csv(paste0(usrdir,deplymatrix))
 deploy_matrix$DeploymentStartDatetime<-mdy_hm(deploy_matrix$DeploymentStartDatetime)-(deploy_matrix$UTC_offset_deploy*60*60)
 deploy_matrix$DeploymentEndDatetime_UTC<-mdy_hm(deploy_matrix$DeploymentEndDatetime_UTC)
-dm<-deploy_matrix%>%select(Bird_ID,Capture_Site,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacture)%>%
+dm<-deploy_matrix%>%select(Bird_ID,Capture_Site,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacturer)%>%
   filter(is.na(TagSerialNumber)==FALSE)
 dm$DeployEnd<-1 #1 is still Tx
 dm$DeployEnd[is.na(dm$DeploymentEndDatetime_UTC)==FALSE]<-0 #0 is finished
 
-(dm<-dm%>%group_by(Project_ID,TagSerialNumber)%>%filter(TagManufacture=="Ornitela")%>%
+(dm<-dm%>%group_by(Project_ID,TagSerialNumber)%>%filter(TagManufacturer=="Ornitela")%>%
     mutate(dm_dur=round(difftime(DeploymentEndDatetime_UTC, DeploymentStartDatetime, units="days")), 
            dm_durD=as.numeric(dm_dur)))
 
@@ -44,7 +44,7 @@ for (i in 1:length(prjt)){
   locs<-readRDS(paste0(usrdir,savedir,"Processed_GPS_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
   names(locs)
   
-  dm_pjt<-dm%>%filter(Project_ID==prjt[i])%>%filter(TagManufacture=="Ornitela")
+  dm_pjt<-dm%>%filter(Project_ID==prjt[i])%>%filter(TagManufacturer=="Ornitela")
   dm_pjt$TagSerialNumber<-as.numeric(dm_pjt$TagSerialNumber)
   
   (iS<-locs%>%group_by(Project_ID,device_id)%>%

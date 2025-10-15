@@ -15,7 +15,7 @@ if(Sys.info()[7]=="rachaelorben") {
   usrdir<-"/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/"
   datadir<-'/data/ornitela_for_ATN/'
   savedir<-'Analysis/DataViz/'
-  deplymatrix<-'/data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
+  deplymatrix<-'/data/Field Data/Deployment_Field_Data.csv'
   source('/Users/rachaelorben/git_repos/CormOcean/MakeDive.R')
 }
 
@@ -24,7 +24,7 @@ if(Sys.info()[7]=="alexa") {
   datadir<-'data/ornitela_for_ATN/'
   savedir<-'Analysis/DataViz/'
   #savedir<-'Research Workspace/Project Metadata/Bounding Coordinates'
-  deplymatrix<-'data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
+  deplymatrix<-'data/Field Data/Deployment_Field_Data.csv'
   source('/Users/alexa/git_repos/CormOcean_QuickViz/MakeDive.R')
 }
 
@@ -32,7 +32,7 @@ if(Sys.info()[7]=="alexa") {
 deploy_matrix<-read.csv(paste0(usrdir,deplymatrix))
 deploy_matrix$DeploymentStartDatetime<-mdy_hm(deploy_matrix$DeploymentStartDatetime)-(deploy_matrix$UTC_offset_deploy*60*60)
 deploy_matrix$DeploymentEndDatetime_UTC<-mdy_hm(deploy_matrix$DeploymentEndDatetime_UTC)
-dm<-deploy_matrix%>%dplyr::select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacture)%>%
+dm<-deploy_matrix%>%dplyr::select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacturer)%>%
   filter(is.na(TagSerialNumber)==FALSE)
 names(deploy_matrix)
 
@@ -54,8 +54,8 @@ prjt<-prjt[prjt!="USACRBRDO14"] #removes non-Ornitela Projects
 # Loop through each project -----------------------------------------------
 
 # Find Project Data Files -------------------------------------------------
-
-for (i in 1:length(prjt)){
+#34
+for (i in 41:length(prjt)){
   
   Files<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"), full.names = TRUE) 
   filenames<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"))
@@ -82,8 +82,8 @@ for (j in 1:length(Files)){
   
   dat$Project_ID<-prjt[i]
   
-  if(is.na(deply_sel$DeploymentEndDatetime_UTC)==TRUE) {dat<-dat%>%filter(UTC_timestamp>deply_sel$DeploymentStartDatetime)}
-  if(is.na(deply_sel$DeploymentEndDatetime_UTC)==FALSE) {dat<-dat%>%filter(UTC_timestamp>deply_sel$DeploymentStartDatetime & UTC_timestamp<deply_sel$DeploymentEndDatetime_UTC)}
+  if(is.na(deply_sel$DeploymentEndDatetime_UTC)==TRUE) {dat<-dat%>%filter(datetime>deply_sel$DeploymentStartDatetime)}
+  if(is.na(deply_sel$DeploymentEndDatetime_UTC)==FALSE) {dat<-dat%>%dplyr::filter(datetime>deply_sel$DeploymentStartDatetime & datetime<deply_sel$DeploymentEndDatetime_UTC)}
   if(nrow(dat)==0) next #skips data that was collected after a tag fell off the bird / bird died
   
   dat$DeployEndShort<-deply_sel$Deployment_End_Short
@@ -114,6 +114,7 @@ for (j in 1:length(IDs)){
   
   #add code to trim to real values
   Locs1<-Locs1%>%filter(lon>(-181))
+  if(nrow(Locs1)<3) next
   
   try(mfilter<-vmask(lat=Locs1$lat, lon=Locs1$lon, dtime=Locs1$datetime, vmax=vmax_val), silent=FALSE)
   #if mfilter isn't made this makes one that selects all points
@@ -144,3 +145,4 @@ if(nrow(archive_dat) > nrow(locs)) next #only saves new data if there are more n
 saveRDS(locs, paste0(usrdir,savedir,"Processed_GPS_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
 
 }
+
