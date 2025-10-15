@@ -1,4 +1,5 @@
-  library(data.table) #fread
+  
+library(data.table) #fread
   library(dplyr)
   library(tidyr)
   library(ggplot2)
@@ -10,8 +11,8 @@
     usrdir<-"/Users/alexa/Box Sync/DASHCAMS/"
     datadir<-'data/ornitela_for_ATN/'
     savedir<-'Analysis/DataViz/'
-    #savedir<-'Research Workspace/Project Metadata/Bounding Coordinates'
-    deplymatrix<-'data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
+    #savedir<-'Research Workspace/Project Metadata/Bounding Coordinates/'
+    deplymatrix<-'data/Field Data/Deployment_Field_Data.csv'
     source('/Users/alexa/git_repos/CormOcean_QuickViz/MakeDive.R')
   }
   
@@ -19,7 +20,7 @@
     usrdir<-"/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/"
     datadir<-'data/ornitela_for_ATN/'
     savedir<-'Analysis/DataViz/'
-    #savedir<-'Research Workspace/Project Metadata/Bounding Coordinates'
+    savedir<-'Research Workspace/Project Metadata/Bounding Coordinates/'
     deplymatrix<-'/data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
     source('/Users/rachaelorben/git_repos/CormOcean/MakeDive.R')
   }
@@ -32,7 +33,7 @@
     filter(is.na(TagSerialNumber)==FALSE) #selects columns wanted in dm, added deployment ID to my selection
   
   # Project info ------------------------------------------------------------
-  prj_info<-read.csv(paste0(usrdir,"/data/Field Data/Project Titles and IDs.csv"))
+  prj_info<-read.csv(paste0(usrdir,"/data/Field Data/Project_Titles_and_IDs.csv"))
   
   prjt<-unique(deploy_matrix$Project_ID)
   rm(deploy_matrix)
@@ -50,7 +51,8 @@
     locs<-rbind(locs,locs1)
   }
   
-  locs<-left_join(locs,prj_info,by="Project_ID")
+  
+locs<-left_join(locs,prj_info,by="Project_ID")
   
   #fixes species in 2019 BRAC/PECO deployment
   locs$Species[locs$Species=="PECO & BRAC"]<-"BRAC"
@@ -86,7 +88,32 @@ ProjBounds2<- ProjBounds %>% rename(
     West = MINLON,
   )
 
-write.csv(ProjBounds2, paste0(usrdir,savedir,"Bounding_Coordinates_by_Project.csv"))
+write.csv(ProjBounds2, paste0(usrdir,savedir,"Bounding_Coordinates_by_Project3.csv"))
+
+
+#Peru
+
+library(sf)
+
+lat <- -10.92760849
+long <- -76.17159271
+#lat <- -13.843278
+#long <- -77.717567
+
+sfc <- st_sfc(st_point(c(long, lat,)), crs = 4326)
+
+utm_zone <- 5839
+
+utm_sfc <- st_transform(sfc, crs = utm_zone)
+
+coordinates <- st_coordinates(utm_sfc)
+easting <- coordinates[, 1]
+northing <- coordinates[, 2]
+
+
+# Print the results
+print(paste("Easting:", easting))
+print(paste("Northing:", northing))
 
 
 # Map - Check Extent -------------------------------------------------------

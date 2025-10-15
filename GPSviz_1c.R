@@ -19,11 +19,12 @@ library(magrittr)
 conflicted::conflicts_prefer(dplyr::filter)
 
 
+
 if(Sys.info()[7]=="alexa") {
-  usrdir<-"/Users/alexa/Box Sync/DASHCAMS/"
-  datadir<-'Analysis/DataViz/'
-  savedir<-"/Users/alexa/Box Sync/Test/"
-  deplymatrix<-'data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
+  usrdir<-"/Users/alexa/Box Sync/"
+  datadir<-'DASHCAMS/Analysis/DataViz/'
+  savedir<-'Test/'
+  deplymatrix<-'DASHCAMS/data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
   source('/Users/alexa/git_repos/CormOcean_QuickViz/MakeDive.R')
 }
 
