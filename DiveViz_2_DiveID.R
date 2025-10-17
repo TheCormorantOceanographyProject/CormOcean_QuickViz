@@ -5,6 +5,7 @@ library(data.table) #rename
 library(stringr)
 library(R.utils)
 library(tidyr)
+library(purrr)
 
 if(Sys.info()[7]=="rachaelorben") {
   usrdir<-"/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/"
@@ -26,9 +27,9 @@ op <- options(digits.secs=3)
 
 #  Deployment matrix ---------------------------------------------
 deploy_matrix<-read.csv(paste0(usrdir,deplymatrix))
-deploy_matrix$DeploymentStartDatetime<-mdy_hm(deploy_matrix$DeploymentStartDatetime)-(deploy_matrix$UTC_offset_deploy*60*60)
+deploy_matrix$DeploymentStartDatetime_Local<-mdy_hm(deploy_matrix$DeploymentStartDatetime_Local)-(deploy_matrix$UTC_offset_deploy*60*60)
 deploy_matrix$DeploymentEndDatetime_UTC<-mdy_hm(deploy_matrix$DeploymentEndDatetime_UTC)
-dm<-deploy_matrix%>%dplyr::select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacturer)%>%
+dm<-deploy_matrix%>%dplyr::select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime_Local,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacturer)%>%
   filter(is.na(TagSerialNumber)==FALSE)
 
 #all project names
@@ -45,14 +46,14 @@ prjt_complete<-prjt_all[!(prjt_all %in% prjt_current)]
 #prjt<-prjt_current
 prjt<-prjt_all
 prjt<-prjt[prjt!="USACRBRDO14"]
-
+prjt
 #NO DIVE NOTES: i =1:6
 #"USACRBRPE19"  "USAMIPE20"    "UAEBUSO20"    "UAESISO20"    "LITCUGR21"    "USAFIBR21" 
 #DIVE NOTES: i =7
 #BAHHASO21, USACRBR22 - possibly started midway through also NOTE_DIVING in datatype - not on and off
 
 # Loop through each project -----------------------------------------------
-for (i in 1:length(prjt)){
+for (i in 10:length(prjt)){
   
 # Find Project Data Files -------------------------------------------------
 Files<-list.files(paste0(usrdir,savedir,"Processed_Dive_Deployment_Data/"), pattern = prjt[i],full.names = TRUE)
