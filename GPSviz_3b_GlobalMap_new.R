@@ -14,7 +14,7 @@ wrap360 = function(lon) {
 }
 
 savedir<-'Analysis/DataViz/'
-deplymatrix<-'data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
+deplymatrix<-'data/Field Data/Deployment_Field_Data.csv'
 
 if(Sys.info()[7]=="rachaelorben") {
   usrdir<-'/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/'
@@ -30,13 +30,13 @@ if(Sys.info()[7]=="Jessica") {
 }
 
 # Project info ------------------------------------------------------------
-prj_info<-read.csv(paste0(usrdir,"/data/Field Data/Project Titles and IDs.csv"))
+prj_info<-read.csv(paste0(usrdir,"/data/Field Data/Project_Titles_and_IDs.csv"))
 
 #  Deployment matrix ---------------------------------------------
 deploy_matrix<-read.csv(paste0(usrdir,deplymatrix))
 deploy_matrix$DeploymentStartDatetime<-mdy_hm(deploy_matrix$DeploymentStartDatetime)-(deploy_matrix$UTC_offset_deploy*60*60)
 deploy_matrix$DeploymentEndDatetime_UTC<-mdy_hm(deploy_matrix$DeploymentEndDatetime_UTC)
-dm<-deploy_matrix%>%dplyr::select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacture)%>%
+dm<-deploy_matrix%>%dplyr::select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacturer)%>%
   filter(is.na(TagSerialNumber)==FALSE)
 
 #all project names
@@ -312,6 +312,10 @@ ggplot() +
 ggsave(paste0(usrdir,savedir,"WorldCormorants_FY2223_byCountry_",dt,".png"), dpi=300,width=12, height=5)
 
 
+names(locs)
+head(locs)
 
-
-
+locs$date<-date(locs$datetime)
+aa<-locs%>%group_by(BirdID)%>%
+  summarize(ndays=n_distinct(date))
+sum(aa$ndays)

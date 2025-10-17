@@ -17,21 +17,21 @@ if(Sys.info()[7]=="rachaelorben") {
   usrdir<-"/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/"
   datadir<-'/data/ornitela_for_ATN/'
   savedir<-'Analysis/DataViz/'
-  deplymatrix<-'/data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
+  deplymatrix<-'/data/Field Data/Deployment_Field_Data.csv'
 }
 
 if(Sys.info()[7]=="alexa") {
   usrdir<-"/Users/alexa/Box Sync/DASHCAMS/"
   datadir<-'data/ornitela_for_ATN/'
   savedir<-'Analysis/DataViz/'
-  deplymatrix<-'/data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
+  deplymatrix<-'data/Field Data/Deployment_Field_Data.csv'
 }
 
 #  Deployment matrix ---------------------------------------------
 deploy_matrix<-read.csv(paste0(usrdir,deplymatrix))
 deploy_matrix$DeploymentStartDatetime<-mdy_hm(deploy_matrix$DeploymentStartDatetime)-(deploy_matrix$UTC_offset_deploy*60*60)
 deploy_matrix$DeploymentEndDatetime_UTC<-mdy_hm(deploy_matrix$DeploymentEndDatetime_UTC)
-dm<-deploy_matrix%>%select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacture)%>%
+dm<-deploy_matrix%>%select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacturer)%>%
   filter(is.na(TagSerialNumber)==FALSE)
 
 #all project names
@@ -43,7 +43,7 @@ rm(deploy_matrix)
 
 prjt<-prjt[prjt!="USACRBRDO14"]
 
-for (i in 1:length(prjt)){
+for (i in 58:length(prjt)){
   
   locs<-readRDS(paste0(usrdir,savedir,"Processed_GPS_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
   dm_prj<-dm%>%filter(Project_ID==prjt[i])
@@ -95,7 +95,7 @@ for (i in 1:length(prjt)){
   # All Bird Data Coverage --------------------------------------------------
   locs$date<-date(locs$UTC_datetime)
   names(locs)
-  dm_prj_O<-dm_prj%>%filter(TagManufacture=="Ornitela")
+  dm_prj_O<-dm_prj%>%filter(TagManufacturer=="Ornitela")
   dm_prj_O$start<-date(dm_prj_O$DeploymentStartDatetime)
   dm_prj_O$end<-date(dm_prj_O$DeploymentEndDatetime_UTC)
   dm_prj_O<-dm_prj_O%>%rename("device_id"="TagSerialNumber")
