@@ -54,8 +54,8 @@ prjt<-prjt[prjt!="USACRBRDO14"] #removes non-Ornitela Projects
 # Loop through each project -----------------------------------------------
 
 # Find Project Data Files -------------------------------------------------
-#34
-for (i in 41:length(prjt)){
+
+for (i in 1:length(prjt)){
   
   Files<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"), full.names = TRUE) 
   filenames<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"))
@@ -63,6 +63,8 @@ for (i in 41:length(prjt)){
   if (length(Files)==0) next
 
 # Loads Data ------------------------------------------------
+# if the project is new you need to comment out lines 142, 144 & 145
+  
 birds<-NULL
 for (j in 1:length(Files)){
   

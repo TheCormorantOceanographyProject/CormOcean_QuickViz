@@ -57,7 +57,7 @@ for (i in 1:length(prjt)){
   
   (pS<-iS%>%group_by(Project_ID)%>%
     summarise(nBirds=n_distinct(device_id),
-              year=year(min(minDt)),
+              year=lubridate::year(min(minDt)),
               minDt=min(date(minDt)),
               maxDt=max(date(maxDt)),
               uDur=round(mean(durD)),
@@ -75,21 +75,20 @@ projSUM<-left_join(projSUM,prj_info,by="Project_ID")
 
 
 # Deployment Matrix Cross Check -------------------------------------------
-#not finished???
 head(dm)
 head(indiSUM)
 head(projSUM)
 
 
-(dm<-dm%>%group_by(Project_ID,TagSerialNumber)%>%filter(TagManufacture=="Ornitela")%>%
+(dm<-dm%>%group_by(Project_ID,TagSerialNumber)%>%filter(TagManufacturer=="Ornitela")%>%
     mutate(dm_dur=round(difftime(DeploymentEndDatetime_UTC, DeploymentStartDatetime, units="days")), 
            dm_durD=as.numeric(dm_dur)))
 
-(dmS<-dm%>%group_by(Project_ID)%>%filter(TagManufacture=="Ornitela")%>%
+(dmS<-dm%>%group_by(Project_ID)%>%filter(TagManufacturer=="Ornitela")%>%
     summarise(dm_nBirds=n_distinct(TagSerialNumber),
-              year=year(min(DeploymentStartDatetime, na.rm=TRUE)),
-              dm_minDt=date(min(DeploymentStartDatetime, na.rm=TRUE)),
-              dm_maxDt=date(max(DeploymentEndDatetime_UTC,na.rm=TRUE)),
+              year=lubridate::year(min(DeploymentStartDatetime, na.rm=TRUE)),
+              dm_minDt=lubridate::date(min(DeploymentStartDatetime, na.rm=TRUE)),
+              dm_maxDt=lubridate::date(max(DeploymentEndDatetime_UTC,na.rm=TRUE)),
               dm_uDur=round(mean(dm_durD, na.rm=TRUE)),
               dm_minDur=min(dm_durD),
               dm_maxDur=max(dm_durD),
