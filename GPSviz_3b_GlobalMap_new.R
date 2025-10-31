@@ -145,7 +145,7 @@ ggplot() +
   #ylab("Latitude")+
   labs(
     title = "Cormorant Oceanography Project",
-    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (2019-2024)",
+    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (2019-2025)",
     caption = "Data: Cormorant Oceanography Project") +
   theme_bw()+
   theme(legend.title=element_blank())+
@@ -171,7 +171,7 @@ ggplot() +
   #ylab("Latitude")+
   labs(
     title = "Cormorant Oceanography Project",
-    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (2019-2024)",
+    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (2019-2025)",
     caption = "Data: Cormorant Oceanography Project") +
   theme_bw()+
   theme(legend.title=element_blank())+
@@ -201,7 +201,7 @@ ggplot() +
   #ylab("Latitude")+
   labs(
     title = "Cormorant Oceanography Project",
-    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (2019-2024)",
+    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (2019-2025)",
     caption = "Data: Cormorant Oceanography Project") +
   theme_bw()+
   theme(legend.title=element_blank())+
@@ -231,7 +231,7 @@ ggplot() +
   #ylab("Latitude")+
   labs(
     title = "Cormorant Oceanography Project",
-    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (2019-2024)",
+    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (2019-2025)",
     caption = "Data: Cormorant Oceanography Project") +
   theme_bw()+
   theme(legend.title=element_blank())+
@@ -240,12 +240,93 @@ ggsave(paste0(usrdir,savedir,"WorldCormorants_byCountry_RobertsonPrj_",dt,".png"
 
 
 
-# Federal Fiscal Year (Oct 22- Sept 23) - Project: Robertson projection (natural earth version) ---------------------------------------------------
+# # Federal Fiscal Year (Oct 22- Sept 23) - Project: Robertson projection (natural earth version) ---------------------------------------------------
+# 
+# # transform the data to robinson
+# countries_robinson <- st_transform(countries, robinson)
+# locs_robinson<-st_transform(locs_wgs84, robinson)
+# locs_robinson_ft<-locs_robinson%>%filter(datetime>"2022-09-30 00:00" & datetime<"2023-10-01 00:00")
+# locs_robinson_ft%>%filter(Project_ID=="USACRBRPE19")
+# 
+# nS<-length(unique(locs_robinson_ft$Project_ID))
+# 
+# ggplot() +
+#   geom_sf(data=countries_robinson,
+#           colour='grey75',
+#           linetype='solid',
+#           fill= 'grey40',
+#           size=0.3) +
+#   geom_sf(data=bb_robinson,
+#           colour='black',
+#           linetype='solid',
+#           fill = NA,
+#           size=0.7) +
+#   geom_sf(data = locs_robinson_ft, aes(color=Project_ID), size=.5)+
+#   #scale_color_manual(values=met.brewer("Johnson", 25))+
+#   scale_color_manual(values=met.brewer("Tam", nS))+
+#   #xlab("Longitude")+
+#   #ylab("Latitude")+
+#   labs(
+#     title = "Cormorant Oceanography Project",
+#     subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (Oct 2022 -Sept 2023)",
+#     caption = "Data: Cormorant Oceanography Project") +
+#   theme_bw()+
+#   theme(legend.title=element_blank())+
+#   guides(colour = guide_legend(override.aes = list(size=3)))
+# ggsave(paste0(usrdir,savedir,"WorldCormorants_FY2223_",dt,".png"), dpi=300,width=12, height=5)
+# 
+# # FFY (Oct 22- Sept 23) - Countries: Robertson projection (natural earth version) ---------------------------------------------------
+# 
+# 
+# # transform the coastline to robinson
+# countries_robinson <- st_transform(countries, robinson)
+# locs_robinson<-st_transform(locs_wgs84, robinson)
+# locs_robinson_ft<-locs_robinson%>%filter(datetime>"2022-09-30 00:00" & datetime<"2023-10-01 00:00")
+# locs_robinson_ft%>%filter(Project_ID=="USACRBRPE19")
+# 
+# nS<-length(unique(locs_robinson_ft$Project_ID))
+# 
+# ggplot() +
+#   geom_sf(data=countries_robinson,
+#           colour='grey75',
+#           linetype='solid',
+#           fill= 'grey40',
+#           size=0.3) +
+#   geom_sf(data=bb_robinson,
+#           colour='black',
+#           linetype='solid',
+#           fill = NA,
+#           size=0.7) +
+#   geom_sf(data = locs_robinson_ft, aes(color=Country), size=.5)+
+#   #scale_color_manual(values=met.brewer("Johnson", 25))+
+#   scale_color_manual(values=met.brewer("Tam", nS))+
+#   #xlab("Longitude")+
+#   #ylab("Latitude")+
+#   labs(
+#     title = "Cormorant Oceanography Project",
+#     subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (Oct 2022 -Sept 2023)",
+#     caption = "Data: Cormorant Oceanography Project") +
+#   theme_bw()+
+#   theme(legend.title=element_blank())+
+#   guides(colour = guide_legend(override.aes = list(size=3)))
+# ggsave(paste0(usrdir,savedir,"WorldCormorants_FY2223_byCountry_",dt,".png"), dpi=300,width=12, height=5)
+# 
+# 
+# names(locs)
+# head(locs)
+# 
+# locs$date<-date(locs$datetime)
+# aa<-locs%>%group_by(BirdID)%>%
+#   summarize(ndays=n_distinct(date))
+# sum(aa$ndays)
+
+
+# Federal Fiscal Year FY25: (Oct 24- Sept 25) - Project: Robertson projection (natural earth version) ---------------------------------------------------
 
 # transform the data to robinson
 countries_robinson <- st_transform(countries, robinson)
 locs_robinson<-st_transform(locs_wgs84, robinson)
-locs_robinson_ft<-locs_robinson%>%filter(datetime>"2022-09-30 00:00" & datetime<"2023-10-01 00:00")
+locs_robinson_ft<-locs_robinson%>%filter(datetime>"2024-09-30 00:00" & datetime<"2025-10-01 00:00")
 locs_robinson_ft%>%filter(Project_ID=="USACRBRPE19")
 
 nS<-length(unique(locs_robinson_ft$Project_ID))
@@ -268,20 +349,20 @@ ggplot() +
   #ylab("Latitude")+
   labs(
     title = "Cormorant Oceanography Project",
-    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (Oct 2022 -Sept 2023)",
+    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (Oct 2024 -Sept 2025)",
     caption = "Data: Cormorant Oceanography Project") +
   theme_bw()+
   theme(legend.title=element_blank())+
   guides(colour = guide_legend(override.aes = list(size=3)))
-ggsave(paste0(usrdir,savedir,"WorldCormorants_FY2223_",dt,".png"), dpi=300,width=12, height=5)
+ggsave(paste0(usrdir,savedir,"WorldCormorants_FY2425_",dt,".png"), dpi=300,width=12, height=5)
 
-# FFY (Oct 22- Sept 23) - Countries: Robertson projection (natural earth version) ---------------------------------------------------
+# FFY (Oct 24- Sept 25) - Countries: Robertson projection (natural earth version) ---------------------------------------------------
 
 
 # transform the coastline to robinson
 countries_robinson <- st_transform(countries, robinson)
 locs_robinson<-st_transform(locs_wgs84, robinson)
-locs_robinson_ft<-locs_robinson%>%filter(datetime>"2022-09-30 00:00" & datetime<"2023-10-01 00:00")
+locs_robinson_ft<-locs_robinson%>%filter(datetime>"2024-09-30 00:00" & datetime<"2025-10-01 00:00")
 locs_robinson_ft%>%filter(Project_ID=="USACRBRPE19")
 
 nS<-length(unique(locs_robinson_ft$Project_ID))
@@ -304,12 +385,12 @@ ggplot() +
   #ylab("Latitude")+
   labs(
     title = "Cormorant Oceanography Project",
-    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (Oct 2022 -Sept 2023)",
+    subtitle = "Coastal tracking data from Cormorants, Shags, & Penguins (Oct 2024 -Sept 2025)",
     caption = "Data: Cormorant Oceanography Project") +
   theme_bw()+
   theme(legend.title=element_blank())+
   guides(colour = guide_legend(override.aes = list(size=3)))
-ggsave(paste0(usrdir,savedir,"WorldCormorants_FY2223_byCountry_",dt,".png"), dpi=300,width=12, height=5)
+ggsave(paste0(usrdir,savedir,"WorldCormorants_FY2425_byCountry_",dt,".png"), dpi=300,width=12, height=5)
 
 
 names(locs)
@@ -319,3 +400,4 @@ locs$date<-date(locs$datetime)
 aa<-locs%>%group_by(BirdID)%>%
   summarize(ndays=n_distinct(date))
 sum(aa$ndays)
+

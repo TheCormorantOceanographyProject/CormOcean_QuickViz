@@ -99,4 +99,12 @@ indiSUM<-left_join(indiSUM,dm)
 write.csv(indiSUM, paste0(usrdir,savedir,"GPSdata_individualbirdSummary.csv"))
 write.csv(projSUM, paste0(usrdir,savedir,"GPSdata_ProjectSummary.csv"))
 
+indiSUM%>%ungroup()%>%
+  summarise(ud=mean(dur),
+                    totalDays=sum(dur))
 
+projSUM%>%ungroup()%>%
+  group_by(Species)%>%
+  summarise(nBirds=sum(nBirds),
+    mxDur=max(maxDur),
+            totalDays=sum(DayTotal))
