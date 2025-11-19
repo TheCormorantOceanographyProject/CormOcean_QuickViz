@@ -158,7 +158,7 @@ dive_sum_AllB<-left_join(dive_sum_AllB,prj_info,by=c("Project"="Project_ID"))
 
 # Save multiple objects
 save(D_sum_AllB, daily_sum_AllB, dive_sum_AllB, file = paste0(usrdir,savedir,"/DiveSummaryFiles_AllBirds.RData"))
-read(paste0(usrdir,savedir,"/DiveSummaryFiles_AllBirds.RData"))
+load(paste0(usrdir,savedir,"/DiveSummaryFiles_AllBirds.RData"))
 
 # dive summary
 
@@ -248,5 +248,23 @@ ggplot()+
 #ggsave(paste0(usrdir,savedir,"PLOTS/SpeciesDiveDurationCompaire.png"), dpi=300)
 
 
-#####
+###### Dives per Day
+daily_sum_AllB<-left_join(daily_sum_AllB,mass_rank, by ="Species_Long")
+
+names(daily_sum_AllB)
+
+ggplot()+
+  geom_boxplot(data=daily_sum_AllB%>%filter(Project!="BAHHASO22", Project!="SOUDICA22")%>%
+                 filter(Species_Long!="Pelagic Cormorant & Brandt's Cormorant")%>%
+                 filter(Species_Long!="Humboldt Penguin") %>%
+                 filter(Species_Long!="African Penguin"),
+               aes(group=Species_Long, y=nDives, fill=Species_Long))+
+  labs(fill = "Common Name")+
+  ylab("Dives / day")+
+  theme_classic()+
+  theme(axis.text.x = element_blank())
+ggsave(paste0(usrdir,savedir,"PLOTS/SpeciesDiveDurationCompaire.png"), dpi=300)
+
+daily_sum_AllB%>%group_by(Species_Long)%>%
+  summarize(mDpD=mean(nDives))
   

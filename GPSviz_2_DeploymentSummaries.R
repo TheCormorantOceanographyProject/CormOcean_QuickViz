@@ -96,6 +96,8 @@ head(projSUM)
               dm_Tx=sum(DeployEnd)))
 
 indiSUM<-left_join(indiSUM,dm)
+indiSUM<-left_join(indiSUM,prj_info,by="Project_ID")
+
 write.csv(indiSUM, paste0(usrdir,savedir,"GPSdata_individualbirdSummary.csv"))
 write.csv(projSUM, paste0(usrdir,savedir,"GPSdata_ProjectSummary.csv"))
 
@@ -108,3 +110,20 @@ projSUM%>%ungroup()%>%
   summarise(nBirds=sum(nBirds),
     mxDur=max(maxDur),
             totalDays=sum(DayTotal))
+
+names(indiSUM)
+indiSUM%>%ungroup()%>%
+  group_by(Species)%>%
+  summarise(nBirds=n(),
+            mxDur=max(durD),
+            totalDays=sum(durD))
+
+indiSUM%>%ungroup()%>%
+  filter(Species=="SPSH")%>%
+  filter(device_id!=235092)%>%
+  summarise(nBirds=n(),
+            mDur=mean(durD),
+            sdDur=sd(durD),
+            mxDur=max(durD),
+            totalDays=sum(durD))
+ 
