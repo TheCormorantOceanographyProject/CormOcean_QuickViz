@@ -29,7 +29,9 @@ op <- options(digits.secs=3)
 deploy_matrix<-read.csv(paste0(usrdir,deplymatrix))
 deploy_matrix$DeploymentStartDatetime_Local<-mdy_hm(deploy_matrix$DeploymentStartDatetime_Local)-(deploy_matrix$UTC_offset_deploy*60*60)
 deploy_matrix$DeploymentEndDatetime_UTC<-mdy_hm(deploy_matrix$DeploymentEndDatetime_UTC)
-dm<-deploy_matrix%>%dplyr::select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime_Local,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacture)%>%
+dm<-deploy_matrix%>%dplyr::select(Bird_ID,TagSerialNumber,Project_ID,
+                                  DeploymentStartDatetime_Local,Deployment_End_Short,
+                                  DeploymentEndDatetime_UTC,TagManufacturer)%>%
   filter(is.na(TagSerialNumber)==FALSE)
 
 #all project names
@@ -49,35 +51,6 @@ prjt<-prjt[prjt!="USACRBRDO14"]
 #prjt<-prjt[prjt!="USACRBRPE19"] #I am not sure why this one is missing
 
 prjt
-# Loop through each project -----------------------------------------------
-# you can run project individually by picking an i value i=10 gives you "PERIPGU22_SC" etc. 
-# then just run the code after the initial for statement
-for (i in 23:length(prjt)){
-  
-  # Find Project Data Files 
-  Files<-list.files(paste0(usrdir,savedir,"Processed_2_DiveID_ByBird/"), pattern = prjt[i], full.names = TRUE)
-  filenames<-list.files(paste0(usrdir,savedir,"Processed_2_DiveID_ByBird/"),pattern = prjt[i])
-  
-  Birds_dpth<-NULL
-  for (k in 1:length(Files)){
-    birdy_d<-readRDS(paste0(usrdir,savedir,"Processed_2_DiveID_ByBird/",filenames[k]))
-    Birds_dpth<-bind_rows(Birds_dpth,birdy_d)
-  }
-  rm(birdy_d)
-
-saveRDS(Birds_dpth, paste0(usrdir,savedir,"Processed_3_DiveID_ByDeployment/",prjt[i],"_DiveID.rds"))
-#filename=paste0(usrdir,savedir,"Processed_3_DiveID_ByDeployment_mat/",prjt[i],"_DiveID.mat")
-
-#rao: commented out Sept 2024 since data and column names don't match 
-#rao: I think these might have been for Jim, but I am not sure if they are still needed?
-# writeMat(filename,
-#          oid=Birds_dpth$oid,
-#          ID=Birds_dpth$ID,
-#          datetime=Birds_dpth,
-#          fixNames=TRUE)
-}
-
-
 # Pulls full deployment data back in and summarizes -----------------------
 
 
@@ -110,15 +83,15 @@ for (k in 1:length(filenames)){
               nDives=n_distinct(dive_id),
               uDepth=round(mean(depth,na.rm=TRUE),2),
               sdDepth=round(sd(depth,na.rm=TRUE),2))
-
+  
   dive_sum<-Birds_dpth%>%group_by(Project, ID, date,dive_id)%>%
-   filter(!is.na(depth))%>% #removes rows with NA values for depth - needs to be switched to days with DiveSensor/ON-OFF events (to do later)
-   summarise(minDt=min(datetime),
-             maxDt=max(datetime),
-             maxDepth=max(depth,na.rm=TRUE),
-             nDives=n_distinct(dive_id),
-             uDepth=round(mean(depth,na.rm=TRUE),2),
-             sdDepth=round(sd(depth,na.rm=TRUE),2))%>%
+    filter(!is.na(depth))%>% #removes rows with NA values for depth - needs to be switched to days with DiveSensor/ON-OFF events (to do later)
+    summarise(minDt=min(datetime),
+              maxDt=max(datetime),
+              maxDepth=max(depth,na.rm=TRUE),
+              nDives=n_distinct(dive_id),
+              uDepth=round(mean(depth,na.rm=TRUE),2),
+              sdDepth=round(sd(depth,na.rm=TRUE),2))%>%
     mutate(dive_dur=maxDt-minDt)
   
   #puts each deployment in a master spreadsheet
@@ -190,7 +163,7 @@ ggsave(paste0(usrdir,savedir,"PLOTS/SpeciesDiveDurationCompaire.png"), dpi=300)
 names(daily_sum_AllB)
 ggplot()+
   geom_boxplot(data=daily_sum_AllB%>%filter(Project!="BAHHASO22")%>%
-               filter(Species_Long!="Pelagic Cormorant & Brandt's Cormorant"),
+                 filter(Species_Long!="Pelagic Cormorant & Brandt's Cormorant"),
                aes(group=Species_Long, y=nDives, fill=Species_Long))+
   ylab("Dives / Day")+
   theme_classic()+
@@ -226,7 +199,7 @@ ggplot()+
   theme_classic()+
   theme(axis.text.x = element_blank())
 #+
-  #facet_wrap(~pencorm, scales = "free_x")
+#facet_wrap(~pencorm, scales = "free_x")
 
 ggsave(paste0(usrdir,savedir,"PLOTS/SpeciesDiveDepth_ByMass_Corms.png"), dpi=300) 
 
@@ -267,4 +240,3 @@ ggsave(paste0(usrdir,savedir,"PLOTS/SpeciesDiveDurationCompaire.png"), dpi=300)
 
 daily_sum_AllB%>%group_by(Species_Long)%>%
   summarize(mDpD=mean(nDives))
-  

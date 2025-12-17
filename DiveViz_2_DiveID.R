@@ -12,7 +12,7 @@ if(Sys.info()[7]=="rachaelorben") {
   datadir<-'/data/ornitela_for_ATN/'
   savedir<-'Analysis/DataViz/'
   deplymatrix<-'/data/Field Data/Deployment_Field_Data.csv'
-  source('/Users/rachaelorben/git_repos/CormOcean/MakeDive.R')
+  source('/Users/rachaelorben/git_repos/TheCormorantOceanographyProject/CormOcean_QuickViz/MakeDive.R')
 }
 
 if(Sys.info()[7]=="alexa") {
@@ -52,8 +52,9 @@ prjt
 #DIVE NOTES: i =7
 #BAHHASO21, USACRBR22 - possibly started midway through also NOTE_DIVING in datatype - not on and off
 
+prjt[46]
 # Loop through each project -----------------------------------------------
-for (i in 10:length(prjt)){
+for (i in 46:length(prjt)){
   
 # Find Project Data Files -------------------------------------------------
 Files<-list.files(paste0(usrdir,savedir,"Processed_Dive_Deployment_Data/"), pattern = prjt[i],full.names = TRUE)
@@ -97,7 +98,8 @@ birdy_d_MD<-MakeDive(birdy_d,idCol=id_num, #column index with unique ID
                         DiveDepthYes=1.2, #dives need to reach 1.2 meters to be considered a dive event
                         TimeDiffAllowed_sec=2, #consecutive points need to have a time difference <2 to be in the same event
                         NumLocCut=2) #dives need to contain three points to be considered a dive, could change this to a duration
-rename(birdy_d_MD,)
+names(birdy_d_MD)
+#birdy_d_MD<-rename(birdy_d_MD,diveID=divedatYN)
 
 #names(Birds_dpth)
 birdy_d_MD$date<-date(birdy_d$datetime)

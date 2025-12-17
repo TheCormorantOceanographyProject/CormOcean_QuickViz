@@ -160,5 +160,7 @@ MakeDive<-function(tracks,
     }
   }
   
+  dat<-rename(dat,diveID=divedatYN)
+  dat<-rename(dat,divedat1=DiveID)
   return(dat)
 }
