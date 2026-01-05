@@ -60,11 +60,11 @@ filenames<-list.files(paste0(usrdir,savedir,"Processed_3_DiveID_ByDeployment"), 
 D_sum_AllB<-NULL
 daily_sum_AllB<-NULL
 dive_sum_AllB<-NULL
-for (k in 1:length(filenames)){
-  Birds_dpth<-readRDS(filenames[k])
+for (k in 21:length(filenames)){
+  Birds_dpth<-readRDS(filenames[k]) #LITCUGR24
   
   names(Birds_dpth)
-  Birds_dpth<-rename(Birds_dpth, "dive_id" = "divedatYN")
+  #Birds_dpth<-rename(Birds_dpth, "dive_id" = "divedatYN")
   
   D_sum<-Birds_dpth%>%group_by(Project, ID)%>%
     summarise(minDt=min(datetime),
@@ -80,16 +80,16 @@ for (k in 1:length(filenames)){
     summarise(minDt=min(datetime),
               maxDt=max(datetime),
               maxDepth=max(depth,na.rm=TRUE),
-              nDives=n_distinct(dive_id),
+              nDives=n_distinct(diveID),
               uDepth=round(mean(depth,na.rm=TRUE),2),
               sdDepth=round(sd(depth,na.rm=TRUE),2))
   
-  dive_sum<-Birds_dpth%>%group_by(Project, ID, date,dive_id)%>%
+  dive_sum<-Birds_dpth%>%group_by(Project, ID, date,diveID)%>%
     filter(!is.na(depth))%>% #removes rows with NA values for depth - needs to be switched to days with DiveSensor/ON-OFF events (to do later)
     summarise(minDt=min(datetime),
               maxDt=max(datetime),
               maxDepth=max(depth,na.rm=TRUE),
-              nDives=n_distinct(dive_id),
+              nDives=n_distinct(diveID),
               uDepth=round(mean(depth,na.rm=TRUE),2),
               sdDepth=round(sd(depth,na.rm=TRUE),2))%>%
     mutate(dive_dur=maxDt-minDt)
@@ -123,7 +123,7 @@ for (k in 1:length(filenames)){
 
 # Plots of multi-deployment summary data ----------------------------------
 # Project info ------------------------------------------------------------
-prj_info<-read.csv(paste0(usrdir,"/data/Field Data/Project Titles and IDs.csv"))
+prj_info<-read.csv(paste0(usrdir,"/data/Field Data/Project_Titles_and_IDs.csv"))
 
 D_sum_AllB<-left_join(D_sum_AllB,prj_info,by=c("Project"="Project_ID"))
 daily_sum_AllB<-left_join(daily_sum_AllB,prj_info,by=c("Project"="Project_ID"))
@@ -133,6 +133,29 @@ dive_sum_AllB<-left_join(dive_sum_AllB,prj_info,by=c("Project"="Project_ID"))
 save(D_sum_AllB, daily_sum_AllB, dive_sum_AllB, file = paste0(usrdir,savedir,"/DiveSummaryFiles_AllBirds.RData"))
 load(paste0(usrdir,savedir,"/DiveSummaryFiles_AllBirds.RData"))
 
+# deployment summary: harness only
+unique(D_sum_AllB$Project)
+D_sum_AllB.har<-D_sum_AllB%>%filter(Project!= "AUSNIBF22" & Project!="AUSNIBF23" & 
+                                      Project!= "NORHOEU23" & Project!="NORJAEU24" &
+                                      Project!="NORROEU23" & Project!="NORSKEU23" &
+                                      Project!="NORSKEU24" & Project!="NORSKEU25" & 
+                                      Project!= "PERPSJHU23" & Project!="PERPSJHU24" &
+                                      Project!= "SOUBOAP24" & Project!= "SOUDIAP23" &
+                                      Project!="ARGITIM23" & Project!="ARGPLIM24" &
+                                      Project!="SOUDICA22" & Project!="USAMIPE20" & 
+                                      Project!="SRILAIN24")
+
+
+unique(D_sum_AllB.har$Project)
+
+D_sum_AllB.har$dur.d <- as.numeric(D_sum_AllB.har$dur, units = "days")
+
+p.durs<-D_sum_AllB.har%>%group_by(Project)%>%
+  summarise(duration=mean(dur.d))
+
+D_sum_AllB.har%>%ungroup()%>%
+  summarise(duration=mean(dur.d),
+            sd=sd(dur.d))
 # dive summary
 
 # box plot of MAX Depth of each dive: from individual dive statistics 

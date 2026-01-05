@@ -54,14 +54,26 @@ prjt
 # Loop through each project -----------------------------------------------
 # you can run project individually by picking an i value i=10 gives you "PERIPGU22_SC" etc. 
 # then just run the code after the initial for statement
-for (i in 54:length(prjt)){
- #"KORGUGR25
+for (i in 1:length(prjt)){
+ #LITKAGR24
+ # "KORGUGR25
   #"SRILAIN25"
   #"LITKAGR25"
+  #NORSKEU25
+  #KORGUGR25
+  #SRILAIN25
+  #LITKAGR25
+  #LITRUGR25
+  #LITRTLO25
   
   # Find Project Data Files 
   Files<-list.files(paste0(usrdir,savedir,"Processed_2_DiveID_ByBird/"), pattern = prjt[i], full.names = TRUE)
   filenames<-list.files(paste0(usrdir,savedir,"Processed_2_DiveID_ByBird/"),pattern = prjt[i])
+  
+  #checks to see if there are missing birds or extra birds
+  files.n <- length(Files)
+  dm.n <- nrow(dm%>%filter(Project_ID==prjt[i])%>%filter(TagManufacturer=="Ornitela"))
+  if((files.n==dm.n)==FALSE) break
   
   Birds_dpth<-NULL
   for (k in 1:length(Files)){

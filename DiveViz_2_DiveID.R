@@ -52,10 +52,12 @@ prjt
 #DIVE NOTES: i =7
 #BAHHASO21, USACRBR22 - possibly started midway through also NOTE_DIVING in datatype - not on and off
 
-prjt[46]
+
 # Loop through each project -----------------------------------------------
-for (i in 46:length(prjt)){
-  
+
+for (i in 1:length(prjt)){
+ print(prjt[i])
+   
 # Find Project Data Files -------------------------------------------------
 Files<-list.files(paste0(usrdir,savedir,"Processed_Dive_Deployment_Data/"), pattern = prjt[i],full.names = TRUE)
 filenames<-list.files(paste0(usrdir,savedir,"Processed_Dive_Deployment_Data/"),pattern = prjt[i],)
