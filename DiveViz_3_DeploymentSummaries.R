@@ -29,7 +29,7 @@ op <- options(digits.secs=3)
 deploy_matrix<-read.csv(paste0(usrdir,deplymatrix))
 deploy_matrix$DeploymentStartDatetime_Local<-mdy_hm(deploy_matrix$DeploymentStartDatetime_Local)-(deploy_matrix$UTC_offset_deploy*60*60)
 deploy_matrix$DeploymentEndDatetime_UTC<-mdy_hm(deploy_matrix$DeploymentEndDatetime_UTC)
-dm<-deploy_matrix%>%dplyr::select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime_Local,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacture)%>%
+dm<-deploy_matrix%>%dplyr::select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime_Local,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacturer)%>%
   filter(is.na(TagSerialNumber)==FALSE)
 
 #all project names
