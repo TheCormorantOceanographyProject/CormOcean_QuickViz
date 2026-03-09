@@ -43,7 +43,7 @@ rm(deploy_matrix)
 
 prjt<-prjt[prjt!="USACRBRDO14"]
 
-for (i in 58:length(prjt)){
+for (i in 1:length(prjt)){
   
   locs<-readRDS(paste0(usrdir,savedir,"Processed_GPS_Deployment_Data/",prjt[i],"_GPS_SpeedFiltered.rds"))
   dm_prj<-dm%>%filter(Project_ID==prjt[i])

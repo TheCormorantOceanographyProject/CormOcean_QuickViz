@@ -24,7 +24,7 @@ if(Sys.info()[7]=="alexa") {
   usrdir<-"/Users/alexa/Box Sync/"
   datadir<-'DASHCAMS/Analysis/DataViz/'
   savedir<-'Test/'
-  deplymatrix<-'DASHCAMS/data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
+  deplymatrix<-'DASHCAMS/data/Field Data/Deployment_Field_Data.csv'
   source('/Users/alexa/git_repos/CormOcean_QuickViz/MakeDive.R')
 }
 
@@ -33,7 +33,7 @@ if(Sys.info()[7]=="rachaelorben") {
   usrdir<-"/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/"
   datadir<-'Analysis/DataViz/'
   savedir<-'/data/ornitela_for_ATN/'
-  deplymatrix<-'/data/Field Data/DASHCAMS_Deployment_Field_Data.csv'
+  deplymatrix<-'/data/Field Data/Deployment_Field_Data.csv'
   source('/Users/rachaelorben/git_repos/CormOcean/MakeDive.R')
 }
 
@@ -41,7 +41,7 @@ if(Sys.info()[7]=="rachaelorben") {
 deploy_matrix<-read.csv(paste0(usrdir,deplymatrix))
 deploy_matrix$DeploymentStartDatetime<-mdy_hm(deploy_matrix$DeploymentStartDatetime)-(deploy_matrix$UTC_offset_deploy*60*60)
 deploy_matrix$DeploymentEndDatetime_UTC<-mdy_hm(deploy_matrix$DeploymentEndDatetime_UTC)
-dm<-deploy_matrix%>%dplyr::select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacture)%>%
+dm<-deploy_matrix%>%dplyr::select(Bird_ID,TagSerialNumber,Project_ID,DeploymentStartDatetime,Deployment_End_Short,DeploymentEndDatetime_UTC,TagManufacturer)%>%
   dplyr::filter(is.na(TagSerialNumber)==FALSE)
 names(deploy_matrix)
 
@@ -60,8 +60,7 @@ prjt_complete<-prjt_all[!(prjt_all %in% prjt_current)]
 prjt<-prjt_all
 prjt<-prjt[prjt!="USACRBRDO14"] #removes non-Ornitela Projects
 
-#<<<<<<< HEAD
-#HEAD
+
 for (i in 1:length(prjt)){
 
   #Files<-list.files("/Users/rachaelorben/Library/CloudStorage/Box-Box/DASHCAMS/Analysis/DataViz/Processed_GPS_Deployment_Data", full.names = TRUE)
