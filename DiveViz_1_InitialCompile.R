@@ -15,7 +15,7 @@ if(Sys.info()[7]=="rachaelorben") {
 }
 
 if(Sys.info()[7]=="alexa") {
-  usrdir<-"/Users/alexa/Box Sync/DASHCAMS/"
+  usrdir<-usrdir<-"/Users/alexa/Library/CloudStorage/Box-Box/DASHCAMS/"
   datadir<-'data/ornitela_for_ATN/'
   savedir<-'Analysis/DataViz/'
   deplymatrix<-'data/Field Data/Deployment_Field_Data.csv'
@@ -51,7 +51,7 @@ prjt<-prjt[prjt!="USACRBRDO14"]
 
 # Find Project Data Files -------------------------------------------------
 # eventually change to pull in gps only files
-for (i in 41:length(prjt)){
+for (i in 1:length(prjt)){
   
   Files<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"), full.names = TRUE)
   filenames<-list.files(paste0(usrdir,datadir,prjt[i],"/gps_sensors_v2"))
@@ -118,4 +118,3 @@ for(k in 1:nrow(sets)){
   #rm(dat,Birds_dpth,archive_dat)
 }
 }
-
