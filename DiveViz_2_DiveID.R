@@ -16,12 +16,13 @@ if(Sys.info()[7]=="rachaelorben") {
 }
 
 if(Sys.info()[7]=="alexa") {
-    usrdir<-"/Users/alexa/Box Sync/DASHCAMS/"
-    datadir<-'data/ornitela_for_ATN/'
-    savedir<-'Analysis/DataViz/'
-    deplymatrix<-'data/Field Data/Deployment_Field_Data.csv'
-    source('/Users/alexa/git_repos/CormOcean_QuickViz/MakeDive.R')
+  usrdir<-usrdir<-"/Users/alexa/Library/CloudStorage/Box-Box/DASHCAMS/"
+  datadir<-'data/ornitela_for_ATN/'
+  savedir<-'Analysis/DataViz/'
+  deplymatrix<-'data/Field Data/Deployment_Field_Data.csv'
+  source('/Users/alexa/git_repos/CormOcean_QuickViz/MakeDive.R')
 }
+
 
 op <- options(digits.secs=3)
 
