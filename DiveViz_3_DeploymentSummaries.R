@@ -16,7 +16,7 @@ if(Sys.info()[7]=="rachaelorben") {
 }
 
 if(Sys.info()[7]=="alexa") {
-  usrdir<-usrdir<-"/Users/alexa/Library/CloudStorage/Box-Box/DASHCAMS/"
+  usrdir<-"/Users/alexa/Library/CloudStorage/Box-Box/DASHCAMS/"
   datadir<-'data/ornitela_for_ATN/'
   savedir<-'Analysis/DataViz/'
   deplymatrix<-'data/Field Data/Deployment_Field_Data.csv'
@@ -52,7 +52,7 @@ prjt
 # Loop through each project -----------------------------------------------
 # you can run project individually by picking an i value i=10 gives you "PERIPGU22_SC" etc. 
 # then just run the code after the initial for statement
-for (i in 23:length(prjt)){
+for (i in 1:length(prjt)){
   
   # Find Project Data Files 
   Files<-list.files(paste0(usrdir,savedir,"Processed_2_DiveID_ByBird/"), pattern = prjt[i], full.names = TRUE)

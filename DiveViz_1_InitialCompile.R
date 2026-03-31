@@ -15,7 +15,7 @@ if(Sys.info()[7]=="rachaelorben") {
 }
 
 if(Sys.info()[7]=="alexa") {
-  usrdir<-usrdir<-"/Users/alexa/Library/CloudStorage/Box-Box/DASHCAMS/"
+  usrdir<-"/Users/alexa/Library/CloudStorage/Box-Box/DASHCAMS/"
   datadir<-'data/ornitela_for_ATN/'
   savedir<-'Analysis/DataViz/'
   deplymatrix<-'data/Field Data/Deployment_Field_Data.csv'
